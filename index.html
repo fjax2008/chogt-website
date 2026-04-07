@@ -629,7 +629,7 @@
         .convo-send:hover { box-shadow: 0 4px 12px var(--accent-glow); }
 
         /* ========== CHATROOM MODE ========== */
-        .chatroom-section { display: none; flex-direction: column; gap: 10px; }
+        .chatroom-section { display: none; flex-direction: column; gap: 10px; flex: 1; min-height: 0; }
 
         .lobby-card {
             background: var(--bg-card);
@@ -690,7 +690,9 @@
         .chat-panel {
             display: none;
             flex-direction: column;
-            height: calc(100vh - 200px);
+            flex: 1;
+            min-height: 0;
+            height: calc(100dvh - 220px);
             max-height: 600px;
         }
 
@@ -1085,9 +1087,58 @@
         }
 
         .ocr-loading .spinner { width: 24px; height: 24px; border-width: 2.5px; }
+    
+        /* ===== Sponsor Banner ===== */
+        .sponsor-banner {
+            position: fixed;
+            top: 52px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,215,0,0.18);
+            border-radius: 20px;
+            padding: 4px 14px 4px 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 280px;
+            width: 75%;
+            height: 30px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .sponsor-banner .sb-icon { font-size: 13px; flex-shrink: 0; }
+        .sponsor-banner .sb-label {
+            font-size: 9px; font-weight: 700;
+            color: rgba(255,215,0,0.7); letter-spacing: 0.5px; flex-shrink: 0;
+        }
+        .sponsor-banner .sb-track {
+            flex: 1; overflow: hidden; position: relative; height: 20px;
+        }
+        .sponsor-item {
+            position: absolute; white-space: nowrap; font-size: 11px;
+            color: #fff; opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease;
+            transform: translateY(4px); display: flex; align-items: center;
+            gap: 4px; line-height: 20px;
+        }
+        .sponsor-item.active { opacity: 1; transform: translateY(0); }
+        .sponsor-item .si-name { font-weight: 600; color: #f0e68c; }
+        .sponsor-item .si-amount { color: #ffd700; font-weight: 700; font-size: 12px; }
+
     </style>
 </head>
 <body>
+    <!-- Sponsor Banner -->
+    <div class="sponsor-banner" id="sponsorBanner">
+        <span class="sb-icon">🏆</span>
+        <span class="sb-label">SPONSOR</span>
+        <div class="sb-track" id="sponsorTrack"></div>
+    </div>
+
+
     <div class="app">
         <!-- TOP BAR -->
         <div class="top-bar">
@@ -1271,7 +1322,7 @@
 
         <!-- FOOTER -->
         <div class="footer">
-            <p data-i18n="footer">微信号：D399HV · <a href="#">鹏哥设计</a> © 2026</p>
+            <p data-i18n="footer">微信号：D399HV · <a href="#">鹏哥提供</a> © 2026</p>
         </div>
     </div>
 
@@ -1345,7 +1396,7 @@
                 alipay: '💙 VND支付',
                 scanTip: '扫码打赏，随缘多少 🙏',
                 btnClose: '关闭',
-                footer: '微信号：D399HV · <a href="#">鹏哥设计</a> © 2026',
+                footer: '微信号：D399HV · <a href="#">鹏哥提供</a> © 2026',
                 toastCopied: '已复制到剪贴板！',
                 toastEmpty: '没有可复制的内容',
                 toastCleared: '已清空',
@@ -1742,7 +1793,19 @@
             document.getElementById('chatRoomId').textContent = crRoomId;
             crUsers(users);
             crUpdateTag();
+            // 监听软键盘弹出/收起，自动滚动到最新消息
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', crOnViewportResize);
+                window.visualViewport.addEventListener('resize', crOnViewportResize);
+            }
             document.getElementById('chatInput').focus();
+        }
+
+        function crOnViewportResize() {
+            const box = document.getElementById('chatMessages');
+            if (box) {
+                requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
+            }
         }
 
         function crUsers(users) {
@@ -1769,15 +1832,20 @@
             }
             div.innerHTML = `${self ? '' : `<div class="cr-sender">${flag} ${esc(msg.username)}</div>`}${body}<div class="cr-time">${time}</div>`;
             box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
+            requestAnimationFrame(() => {
+                box.scrollTop = box.scrollHeight;
+            });
         }
 
         function crSys(text) {
             const d = document.createElement('div');
             d.className = 'cr-sys';
-            d.textContent = text;
             document.getElementById('chatMessages').appendChild(d);
-            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+            d.textContent = text;
+            requestAnimationFrame(() => {
+                const m = document.getElementById('chatMessages');
+                m.scrollTop = m.scrollHeight;
+            });
         }
 
         function crSend() {
@@ -1787,6 +1855,11 @@
             crWs.send(JSON.stringify({ type: 'message', text }));
             inp.value = '';
             inp.style.height = '36px';
+            // 先滚动到底部，再恢复焦点
+            const box = document.getElementById('chatMessages');
+            requestAnimationFrame(() => {
+                box.scrollTop = box.scrollHeight;
+            });
             inp.focus();
         }
 
@@ -1796,6 +1869,9 @@
             document.getElementById('chatLobby').style.display = 'block';
             document.getElementById('chatMessages').innerHTML = '';
             crRoomId = ''; crUserId = null;
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', crOnViewportResize);
+            }
         }
 
         function crCopyRoom() {
@@ -1833,6 +1909,85 @@
             if (e && e.target !== e.currentTarget) return;
             document.getElementById('tipModal').classList.remove('show');
         }
+    
+
+// ===== Sponsor Banner Logic =====
+const SPONSORS_CN = [
+    { name: '邓永威', fixed: true },
+    { name: '和平', fixed: true },
+    { name: '伯贤', fixed: true },
+    { name: '阿天', fixed: true },
+    { name: '德平', fixed: true },
+    { name: '述熹', fixed: true }
+];
+const SPONSORS_VN = [
+    'Nguyễn Văn Hùng', 'Trần Minh Tuấn', 'Lê Thị Mai',
+    'Phạm Quốc Bảo', 'Hoàng Anh Đức', 'Võ Thanh Tùng'
+];
+const RANDOM_NAMES = ['小明', '阿杰', 'Lucas', 'Yuki', '小林', 'Sakura', '大伟', 'Mina', '志豪', 'Emily'];
+
+function genSponsorList() {
+    const list = [];
+    SPONSORS_CN.forEach(s => {
+        const amt = Math.floor(Math.random() * 201) + 100;
+        list.push({ name: s.name, amount: '¥' + amt, sort: Math.random() });
+    });
+    const vnCount = 2 + Math.floor(Math.random() * 2);
+    for (let i = 0; i < vnCount; i++) {
+        const n = SPONSORS_VN[Math.floor(Math.random() * SPONSORS_VN.length)];
+        const amt = (Math.floor(Math.random() * 50001) + 50000).toLocaleString();
+        list.push({ name: n, amount: amt + ' VND', sort: Math.random() });
+    }
+    const rndCount = 3 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < rndCount; i++) {
+        const n = RANDOM_NAMES[Math.floor(Math.random() * RANDOM_NAMES.length)];
+        const amt = Math.floor(Math.random() * 41) + 10;
+        list.push({ name: n, amount: '¥' + amt, sort: Math.random() });
+    }
+    list.sort((a, b) => a.sort - b.sort);
+    return list;
+}
+
+let sponsorIdx = 0;
+let sponsorTimer = null;
+let sponsorList = [];
+
+function renderSponsorItem(s) {
+    return '<span class="si-name">' + s.name + '</span><span class="si-amount">' + s.amount + '</span>';
+}
+
+function showSponsor(idx) {
+    const items = document.querySelectorAll('.sponsor-item');
+    items.forEach(el => el.classList.remove('active'));
+    if (items[idx]) items[idx].classList.add('active');
+}
+
+function initSponsorBanner() {
+    sponsorList = genSponsorList();
+    const track = document.getElementById('sponsorTrack');
+    if (!track) return;
+    track.innerHTML = '';
+    sponsorList.forEach((s, i) => {
+        const d = document.createElement('div');
+        d.className = 'sponsor-item' + (i === 0 ? ' active' : '');
+        d.innerHTML = renderSponsorItem(s);
+        track.appendChild(d);
+    });
+    sponsorIdx = 0;
+    if (sponsorTimer) clearInterval(sponsorTimer);
+    sponsorTimer = setInterval(() => {
+        sponsorIdx = (sponsorIdx + 1) % sponsorList.length;
+        showSponsor(sponsorIdx);
+    }, 3000);
+}
+
+// Sponsor modal
+
+
+
+// Init sponsor on load
+document.addEventListener("DOMContentLoaded", initSponsorBanner);
+
     </script>
 </body>
 </html>
