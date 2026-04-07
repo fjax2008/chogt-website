@@ -1091,112 +1091,42 @@
         /* ===== Sponsor Banner ===== */
         .sponsor-banner {
             position: fixed;
-            top: 10px;
+            top: 8px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 200;
-            background: rgba(0,0,0,0.55);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,215,0,0.25);
-            border-radius: 24px;
-            padding: 6px 18px 6px 14px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,215,0,0.18);
+            border-radius: 20px;
+            padding: 4px 14px 4px 10px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            max-width: 380px;
-            width: 90%;
-            height: 38px;
+            gap: 8px;
+            max-width: 280px;
+            width: 75%;
+            height: 30px;
             overflow: hidden;
-            box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        .sponsor-banner .sb-icon { font-size: 16px; flex-shrink: 0; }
+        .sponsor-banner .sb-icon { font-size: 13px; flex-shrink: 0; }
         .sponsor-banner .sb-label {
-            font-size: 11px; font-weight: 700;
-            color: rgba(255,215,0,0.85); letter-spacing: 1px; flex-shrink: 0;
+            font-size: 9px; font-weight: 700;
+            color: rgba(255,215,0,0.7); letter-spacing: 0.5px; flex-shrink: 0;
         }
         .sponsor-banner .sb-track {
-            flex: 1; overflow: hidden; position: relative; height: 24px;
+            flex: 1; overflow: hidden; position: relative; height: 20px;
         }
         .sponsor-item {
-            position: absolute; white-space: nowrap; font-size: 12.5px;
+            position: absolute; white-space: nowrap; font-size: 11px;
             color: #fff; opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease;
-            transform: translateY(6px); display: flex; align-items: center;
-            gap: 6px; line-height: 24px;
+            transform: translateY(4px); display: flex; align-items: center;
+            gap: 4px; line-height: 20px;
         }
         .sponsor-item.active { opacity: 1; transform: translateY(0); }
         .sponsor-item .si-name { font-weight: 600; color: #f0e68c; }
         .sponsor-item .si-amount { color: #ffd700; font-weight: 700; font-size: 12px; }
-
-        /* ===== Sponsor Modal ===== */
-        .sponsor-overlay {
-            display: none; position: fixed; inset: 0; z-index: 500;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-            justify-content: center; align-items: center;
-        }
-        .sponsor-overlay.show { display: flex; }
-        .sponsor-modal {
-            background: linear-gradient(160deg, #1a1a2e 0%, #16213e 100%);
-            border: 1px solid rgba(255,215,0,0.2);
-            border-radius: 18px; padding: 28px 24px 22px;
-            width: 320px; max-width: 90%;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.5); position: relative;
-        }
-        .sponsor-modal h3 {
-            text-align: center; font-size: 17px; color: #ffd700;
-            margin: 0 0 20px; letter-spacing: 1px;
-        }
-        .sponsor-modal .sm-close {
-            position: absolute; top: 12px; right: 16px;
-            background: none; border: none; color: rgba(255,255,255,0.4);
-            font-size: 20px; cursor: pointer;
-        }
-        .sponsor-modal .sm-close:hover { color: #fff; }
-        .sponsor-modal label {
-            display: block; font-size: 12px; color: rgba(255,255,255,0.5);
-            margin-bottom: 6px; margin-top: 14px;
-        }
-        .sponsor-modal label:first-of-type { margin-top: 0; }
-        .sponsor-modal input, .sponsor-modal select {
-            width: 100%; padding: 10px 12px;
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 10px; color: #fff; font-size: 14px;
-            outline: none; box-sizing: border-box;
-        }
-        .sponsor-modal input:focus, .sponsor-modal select:focus {
-            border-color: rgba(255,215,0,0.5);
-        }
-        .sponsor-modal select option { background: #1a1a2e; color: #fff; }
-        .sm-presets { display: flex; gap: 8px; margin-top: 8px; }
-        .sm-presets button {
-            flex: 1; padding: 8px;
-            background: rgba(255,215,0,0.08);
-            border: 1px solid rgba(255,215,0,0.2);
-            border-radius: 8px; color: #ffd700;
-            font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-        }
-        .sm-presets button:hover, .sm-presets button.sel {
-            background: rgba(255,215,0,0.2); border-color: rgba(255,215,0,0.5);
-        }
-        .sm-send {
-            width: 100%; margin-top: 20px; padding: 12px;
-            background: linear-gradient(135deg, #ffd700, #ffaa00);
-            border: none; border-radius: 12px; color: #1a1a2e;
-            font-size: 15px; font-weight: 700; cursor: pointer;
-            letter-spacing: 1px; transition: transform 0.15s;
-        }
-        .sm-send:active { transform: scale(0.97); }
-        .sm-toast {
-            position: fixed; top: 60px; left: 50%;
-            transform: translateX(-50%) translateY(-20px);
-            background: rgba(0,0,0,0.8); color: #ffd700;
-            padding: 10px 24px; border-radius: 24px;
-            font-size: 14px; font-weight: 600; z-index: 600;
-            opacity: 0; transition: all 0.3s ease; pointer-events: none;
-        }
-        .sm-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     </style>
 </head>
@@ -1208,30 +1138,6 @@
         <div class="sb-track" id="sponsorTrack"></div>
     </div>
 
-    <!-- Sponsor Modal -->
-    <div class="sponsor-overlay" id="sponsorOverlay">
-        <div class="sponsor-modal">
-            <button class="sm-close" id="smClose">✕</button>
-            <h3>☕ 请我喝杯咖啡</h3>
-            <label>昵称</label>
-            <input type="text" id="smName" placeholder="你的名字" maxlength="20">
-            <label>币种</label>
-            <select id="smCurrency">
-                <option value="CNY">CNY 人民币</option>
-                <option value="VND">VND 越南盾</option>
-            </select>
-            <label>金额</label>
-            <div class="sm-presets" id="smPresets">
-                <button data-amt="10">¥10</button>
-                <button data-amt="20" class="sel">¥20</button>
-                <button data-amt="50">¥50</button>
-                <button data-amt="100">¥100</button>
-            </div>
-            <input type="number" id="smAmount" placeholder="自定义金额" style="margin-top:8px" min="1">
-            <button class="sm-send" id="smSend">💖 发送赞助</button>
-        </div>
-    </div>
-    <div class="sm-toast" id="smToast"></div>
 
     <div class="app">
         <!-- TOP BAR -->
@@ -2076,74 +1982,8 @@ function initSponsorBanner() {
 }
 
 // Sponsor modal
-const smOverlay = document.getElementById('sponsorOverlay');
-const smClose = document.getElementById('smClose');
-const smSend = document.getElementById('smSend');
-const smCurrency = document.getElementById('smCurrency');
-const smPresets = document.getElementById('smPresets');
-const smAmount = document.getElementById('smAmount');
-const smName = document.getElementById('smName');
-const smToast = document.getElementById('smToast');
 
-document.getElementById('sponsorBanner').addEventListener('click', () => {
-    smOverlay.classList.add('show');
-});
 
-smClose.addEventListener('click', () => smOverlay.classList.remove('show'));
-smOverlay.addEventListener('click', e => {
-    if (e.target === smOverlay) smOverlay.classList.remove('show');
-});
-
-smCurrency.addEventListener('change', () => {
-    const isVND = smCurrency.value === 'VND';
-    const presets = isVND
-        ? [{ l: '50K', v: 50000 }, { l: '100K', v: 100000 }, { l: '200K', v: 200000 }, { l: '500K', v: 500000 }]
-        : [{ l: '¥10', v: 10 }, { l: '¥20', v: 20 }, { l: '¥50', v: 50 }, { l: '¥100', v: 100 }];
-    smPresets.innerHTML = presets.map((p, i) =>
-        '<button data-amt="' + p.v + '"' + (i === 1 ? ' class="sel"' : '') + '>' + p.l + '</button>'
-    ).join('');
-    smAmount.value = '';
-    smAmount.placeholder = isVND ? '自定义金额 (VND)' : '自定义金额';
-    bindPresets();
-});
-
-function bindPresets() {
-    smPresets.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', () => {
-            smPresets.querySelectorAll('button').forEach(b => b.classList.remove('sel'));
-            btn.classList.add('sel');
-            smAmount.value = btn.dataset.amt;
-        });
-    });
-}
-bindPresets();
-
-smSend.addEventListener('click', () => {
-    const name = smName.value.trim() || '匿名好心人';
-    let amount = smAmount.value.trim();
-    if (!amount) {
-        const sel = smPresets.querySelector('.sel');
-        amount = sel ? sel.dataset.amt : '20';
-    }
-    const cur = smCurrency.value;
-    const disp = cur === 'VND' ? parseInt(amount).toLocaleString() + ' VND' : '¥' + amount;
-    // Add to sponsor list
-    const newItem = { name, amount: disp };
-    sponsorList.push(newItem);
-    const track = document.getElementById('sponsorTrack');
-    const d = document.createElement('div');
-    d.className = 'sponsor-item';
-    d.innerHTML = renderSponsorItem(newItem);
-    track.appendChild(d);
-    // Show toast
-    smToast.textContent = '💖 感谢 ' + name + ' 赞助 ' + disp + '！';
-    smToast.classList.add('show');
-    setTimeout(() => smToast.classList.remove('show'), 2500);
-    smOverlay.classList.remove('show');
-    // Reset form
-    smName.value = '';
-    smAmount.value = '';
-});
 
 // Init sponsor on load
 document.addEventListener("DOMContentLoaded", initSponsorBanner);
