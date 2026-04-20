@@ -1286,7 +1286,7 @@
                 <div class="lobby-card fade-in">
                     <div class="lobby-title" data-i18n="lobbyJoin">🔑 加入房间</div>
                     <div class="lobby-field">
-                        <input type="text" id="joinRoomId" placeholder="输入6位房间号" maxlength="6" inputmode="numeric" data-i18n-placeholder="lobbyRoomId">
+                        <input type="text" id="joinRoomId" placeholder="输入2位房间号" maxlength="2" inputmode="numeric" data-i18n-placeholder="lobbyRoomId">
                     </div>
                     <div class="lobby-field">
                         <input type="text" id="joinName" placeholder="你的昵称（留空自动生成）" maxlength="20" data-i18n-placeholder="lobbyNickname">
@@ -1389,7 +1389,7 @@
                 lobbyJoinBtn: '🚪 加入房间',
                 lobbyOr: '或者加入已有房间',
                 lobbyNickname: '你的昵称（留空自动生成）',
-                lobbyRoomId: '输入6位房间号',
+                lobbyRoomId: '输入2位房间号',
                 modalTitle: '请我喝杯咖啡',
                 modalSubtitle: '您的支持是我最大的动力 ❤️',
                 wechatPay: '💚 微信支付',
@@ -1441,7 +1441,7 @@
                 lobbyJoinBtn: '🚪 Tham gia',
                 lobbyOr: 'hoặc tham gia phòng có sẵn',
                 lobbyNickname: 'Biệt danh (để trống tự tạo)',
-                lobbyRoomId: 'Nhập mã phòng 6 số',
+                lobbyRoomId: 'Nhập mã phòng 2 số',
                 modalTitle: 'Mời tôi ly cà phê',
                 modalSubtitle: 'Sự ủng hộ của bạn là động lực lớn nhất ❤️',
                 wechatPay: '💚 WeChat',
@@ -1531,7 +1531,7 @@
 
             // URL param auto-join
             const p = new URLSearchParams(location.search).get('room');
-            if (p && p.length === 6) document.getElementById('joinRoomId').value = p;
+            if (p && p.length === 2) document.getElementById('joinRoomId').value = p;
         });
 
         // ========== MODE SWITCH ==========
@@ -1551,22 +1551,6 @@
             inputEl = document.getElementById('input');
             outputEl = document.getElementById('output');
             loadingEl = document.getElementById('loading');
-
-            inputEl.addEventListener('input', () => {
-                clearTimeout(debounceTimer);
-                const text = inputEl.value.trim();
-                if (!text) { outputEl.value = ''; lastText = ''; return; }
-                if (text === lastText) return;
-                lastText = text;
-                debounceTimer = setTimeout(() => translateText(), 800);
-            });
-
-            inputEl.addEventListener('paste', () => {
-                setTimeout(() => {
-                    const text = inputEl.value.trim();
-                    if (text && text !== lastText) { lastText = text; translateText(); }
-                }, 100);
-            });
         }
 
         const DEEPSEEK_API_KEY = 'sk-b234f5da203f4eb592ed460f2b03bdf9';
@@ -1603,8 +1587,7 @@
                     `请将以下${langMap[src]}翻译成${langMap[tgt]}。翻译准确自然流畅。只输出翻译结果：\n${text}`
                 );
                 outputEl.value = result;
-                copyToClipboard(result);
-                showToast('翻译完成，已自动复制！');
+                showToast('翻译完成！');
             } catch (e) {
                 showToast(i18n[currentLang].toastError);
             } finally {
@@ -1777,7 +1760,7 @@
 
         function crJoinRoom() {
             const id = document.getElementById('joinRoomId').value.trim();
-            if (!id || id.length !== 6) { showToast('请输入6位房间号'); return; }
+            if (!id || id.length !== 2) { showToast('请输入2位房间号'); return; }
             const name = document.getElementById('joinName').value.trim();
             crLang = document.getElementById('joinLang').value;
             crRoomId = id;
