@@ -409,6 +409,13 @@
         .convo-msg-bubble {
             padding: 9px 13px; border-radius: 16px;
             font-size: 0.88rem; line-height: 1.55; word-break: break-word;
+            transition: all 0.2s var(--ease); position: relative;
+        }
+        .convo-msg-bubble:hover::after {
+            content: '🔊'; position: absolute; top: -6px; right: -6px;
+            font-size: 0.65rem; background: rgba(0,0,0,0.6);
+            border-radius: 50%; width: 18px; height: 18px;
+            display: flex; align-items: center; justify-content: center;
         }
         .convo-msg.self .convo-msg-bubble {
             background: var(--grad); color: #fff;
@@ -549,6 +556,13 @@
         .cr-bubble {
             padding: 8px 12px; border-radius: 14px;
             font-size: 0.88rem; line-height: 1.5; word-break: break-word;
+            position: relative; transition: all 0.2s var(--ease);
+        }
+        .cr-bubble:hover::after {
+            content: '🔊'; position: absolute; top: -5px; right: -5px;
+            font-size: 0.55rem; background: rgba(0,0,0,0.6);
+            border-radius: 50%; width: 16px; height: 16px;
+            display: flex; align-items: center; justify-content: center;
         }
         .cr-msg.self .cr-bubble {
             background: linear-gradient(135deg, #4ade80, #2dd4bf); color: #fff;
@@ -832,6 +846,7 @@
 
             <div class="action-row">
                 <button class="btn btn-primary" onclick="translateText()" data-i18n="btnTranslate">🌐 翻译</button>
+                <button class="btn btn-ghost" onclick="speakOutput()" data-i18n="btnSpeak">🔊 朗读</button>
                 <button class="btn btn-ghost" onclick="copyResult()" data-i18n="btnCopy">📋 复制</button>
                 <button class="btn btn-ghost" onclick="clearAll()" data-i18n="btnClear">🗑️ 清空</button>
             </div>
@@ -858,6 +873,7 @@
                 <div class="ocr-title" data-i18n="ocrTitle">翻译结果</div>
                 <div class="ocr-body" id="ocrResult"></div>
                 <div class="ocr-actions">
+                    <button class="btn btn-ghost" onclick="speakOcrResult()">🔊 朗读</button>
                     <button class="btn btn-ghost" onclick="copyOcrResult()">📋 复制</button>
                     <button class="btn btn-ghost" onclick="resetCamera()">🔄 重新识别</button>
                 </div>
@@ -1004,6 +1020,7 @@
                 outputPlaceholder: '翻译结果将显示在这里…',
                 translating: '正在翻译…',
                 btnTranslate: '🌐 翻译',
+                btnSpeak: '🔊 朗读',
                 btnCopy: '📋 复制',
                 btnClear: '🗑️ 清空',
                 cameraTip: '点击下方按钮选择图片或拍照',
@@ -1056,6 +1073,7 @@
                 outputPlaceholder: 'Kết quả dịch sẽ hiển thị ở đây…',
                 translating: 'Đang dịch…',
                 btnTranslate: '🌐 Dịch',
+                btnSpeak: '🔊 Đọc',
                 btnCopy: '📋 Sao chép',
                 btnClear: '🗑️ Xóa',
                 cameraTip: 'Nhấn nút bên dưới để chọn ảnh hoặc chụp',
@@ -1215,8 +1233,8 @@
             const langMap = { zh: '简体中文', vi: '越南语' };
             try {
                 const result = await callDeepSeek(
-                    '你是一个资深中越翻译专家，长期生活在越南，精通中越两国语言文化。',
-                    `请将以下${langMap[src]}翻译成${langMap[tgt]}。翻译准确自然流畅。只输出翻译结果：\n${text}`
+                    '你是一个在越南生活多年的中越翻译专家，精通两国口语和俚语。翻译时使用**口语化**的表达方式，像朋友之间聊天一样自然。越南语使用当地人真正日常说的表达，不要书面语。中文用大白话，不要太文绉绉。语气词要自然转换（越南语nha/nhé/à 对应中文吧/哦/啊）。',
+                    `请将以下${langMap[src]}翻译成${langMap[tgt]}，用最自然的口语表达，只输出翻译结果：\n${text}`
                 );
                 outputEl.value = result;
                 showToast('翻译完成！');
@@ -1241,6 +1259,56 @@
         function clearAll() {
             inputEl.value = ''; outputEl.value = ''; lastText = '';
             showToast(i18n[currentLang].toastCleared);
+        }
+
+        // ========== TTS (语音播报) ==========
+        let currentUtterance = null;
+
+        function speakText(text, lang) {
+            if (!text) return;
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance(text);
+            utter.lang = lang === 'vi' ? 'vi-VN' : 'zh-CN';
+            utter.rate = 0.95;
+            utter.pitch = 1;
+
+            // 尝试匹配更好的语音
+            const voices = window.speechSynthesis.getVoices();
+            const targetLang = utter.lang;
+            const match = voices.find(v => v.lang.startsWith(targetLang.split('-')[0]) && (v.localService || v.name.includes('Google'))) ||
+                          voices.find(v => v.lang.startsWith(targetLang.split('-')[0]));
+            if (match) utter.voice = match;
+
+            currentUtterance = utter;
+            window.speechSynthesis.speak(utter);
+        }
+
+        function speakOutput() {
+            const text = outputEl.value.trim();
+            if (!text) { showToast(i18n[currentLang].toastEmpty); return; }
+            const lang = detectLanguage(text);
+            speakText(text, lang);
+            showToast(lang === 'vi' ? '🇻🇳 正在朗读越南语…' : '🇨🇳 正在朗读中文…');
+        }
+
+        function speakOcrResult() {
+            const text = document.getElementById('ocrResult').textContent.trim();
+            if (!text) return;
+            const lang = detectLanguage(text);
+            speakText(text, lang);
+        }
+
+        function speakInput() {
+            const text = inputEl.value.trim();
+            if (!text) return;
+            const lang = detectLanguage(text);
+            speakText(text, lang);
+        }
+
+        // 预加载语音列表
+        if (window.speechSynthesis) {
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+            window.speechSynthesis.getVoices();
         }
 
         // ========== CAMERA ==========
@@ -1271,8 +1339,8 @@
             preview.innerHTML = '<div class="ocr-loading"><div class="spinner"></div>正在识别…</div>';
             try {
                 const prompt = currentLang === 'zh'
-                    ? '请识别图片中的越南语文字并翻译成中文。只输出中文翻译结果，不要显示原文，不要加任何说明。'
-                    : '请识别图片中的中文文字并翻译成越南语。只输出越南语翻译结果，不要显示原文，不要加任何说明。';
+                    ? '请识别图片中的越南语文字并翻译成中文口语，像中国人日常说话一样自然，用大白话。只输出中文翻译结果，不要显示原文。'
+                    : '请识别图片中的中文文字并翻译成越南语口语，像越南人日常说话一样自然。只输出越南语翻译结果，不要显示原文。';
                 const r = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + QWEN_API_KEY },
@@ -1315,7 +1383,7 @@
             addConvoMsg('zh', text, true);
             input.value = '';
             try {
-                const t = await callDeepSeek('资深中越翻译专家', '将以下简体中文翻译成越南语，只输出翻译结果：\n' + text);
+                const t = await callDeepSeek('资深中越翻译专家，精通口语和俚语，翻译像朋友聊天一样自然。', '将以下简体中文翻译成越南语，用口语化表达，像越南人日常说话一样自然，只输出翻译结果：\n' + text);
                 addConvoTranslated('vi', t);
             } catch { showToast(i18n[currentLang].toastError); }
         }
@@ -1327,7 +1395,7 @@
             addConvoMsg('vi', text, true);
             input.value = '';
             try {
-                const t = await callDeepSeek('资深中越翻译专家', '将以下越南语翻译成简体中文，只输出翻译结果：\n' + text);
+                const t = await callDeepSeek('资深中越翻译专家，精通口语和俚语，翻译像朋友聊天一样自然。', '将以下越南语翻译成简体中文，用口语化表达，像中国人日常说话一样自然，只输出翻译结果：\n' + text);
                 addConvoTranslated('zh', t);
             } catch { showToast(i18n[currentLang].toastError); }
         }
@@ -1340,7 +1408,17 @@
             const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
             const div = document.createElement('div');
             div.className = `convo-msg ${self ? 'self' : 'other'}`;
-            div.innerHTML = `<div class="convo-msg-bubble">${esc(text)}</div><div class="convo-msg-time">${time}</div>`;
+            const bubble = document.createElement('div');
+            bubble.className = 'convo-msg-bubble';
+            bubble.textContent = text;
+            bubble.style.cursor = 'pointer';
+            bubble.title = '点击朗读';
+            bubble.addEventListener('click', () => speakText(text, type));
+            div.appendChild(bubble);
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'convo-msg-time';
+            timeDiv.textContent = time;
+            div.appendChild(timeDiv);
             box.appendChild(div);
             box.scrollTop = box.scrollHeight;
         }
@@ -1442,14 +1520,47 @@
             div.className = `cr-msg ${self ? 'self' : 'other'}`;
             const time = new Date(msg.time).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
             const flag = msg.sourceLang === 'vi' ? '🇻🇳' : '🇨🇳';
-            let body;
-            if (self) {
-                body = `<div class="cr-bubble">${esc(msg.original)}</div>`;
-            } else {
-                const diff = msg.translated !== msg.original;
-                body = `<div class="cr-bubble">${esc(msg.translated)}${diff ? `<div class="cr-translated">📎 ${flag} ${esc(msg.original)}</div>` : ''}</div>`;
+
+            // sender label
+            if (!self) {
+                const senderDiv = document.createElement('div');
+                senderDiv.className = 'cr-sender';
+                senderDiv.textContent = `${flag} ${msg.username}`;
+                div.appendChild(senderDiv);
             }
-            div.innerHTML = `${self ? '' : `<div class="cr-sender">${flag} ${esc(msg.username)}</div>`}${body}<div class="cr-time">${time}</div>`;
+
+            // bubble
+            const bubble = document.createElement('div');
+            bubble.className = 'cr-bubble';
+            bubble.style.cursor = 'pointer';
+            bubble.title = '点击朗读';
+            const speakLang = msg.sourceLang || 'zh';
+            const speakTextContent = self ? msg.original : msg.translated;
+            bubble.addEventListener('click', () => speakText(speakTextContent, speakLang));
+
+            if (self) {
+                bubble.textContent = msg.original;
+            } else {
+                bubble.textContent = msg.translated;
+                const diff = msg.translated !== msg.original;
+                if (diff) {
+                    const sub = document.createElement('div');
+                    sub.className = 'cr-translated';
+                    sub.textContent = `📎 ${flag} ${msg.original}`;
+                    sub.style.cursor = 'pointer';
+                    sub.title = '点击朗读原文';
+                    sub.addEventListener('click', (e) => { e.stopPropagation(); speakText(msg.original, msg.sourceLang); });
+                    bubble.appendChild(sub);
+                }
+            }
+            div.appendChild(bubble);
+
+            // time
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'cr-time';
+            timeDiv.textContent = time;
+            div.appendChild(timeDiv);
+
             box.appendChild(div);
             requestAnimationFrame(() => { box.scrollTop = box.scrollHeight; });
         }
