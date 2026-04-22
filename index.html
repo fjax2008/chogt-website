@@ -1203,17 +1203,16 @@
             loadingEl = document.getElementById('loading');
         }
 
-        const DEEPSEEK_API_KEY = 'sk-b234f5da203f4eb592ed460f2b03bdf9';
-
-        async function callDeepSeek(system, user) {
-            const r = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        async function callTranslate(text, source, target, tone) {
+            const r = await fetch('/api/translate', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_API_KEY },
-                body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'system', content: system }, { role: 'user', content: user }], temperature: 0.3, max_tokens: 2000 })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, source, target, tone })
             });
             if (!r.ok) throw new Error('API error');
             const d = await r.json();
-            return d.choices[0].message.content.trim();
+            if (d.error) throw new Error(d.error);
+            return d.translation;
         }
 
         function detectLanguage(text) {
@@ -1230,12 +1229,8 @@
             const tgt = src === 'zh' ? 'vi' : 'zh';
             loadingEl.classList.add('show');
 
-            const langMap = { zh: '简体中文', vi: '越南语' };
             try {
-                const result = await callDeepSeek(
-                    '你是一个在越南生活多年的中越翻译专家，精通两国口语和俚语。翻译时使用**口语化**的表达方式，像朋友之间聊天一样自然。越南语使用当地人真正日常说的表达，不要书面语。中文用大白话，不要太文绉绉。语气词要自然转换（越南语nha/nhé/à 对应中文吧/哦/啊）。',
-                    `请将以下${langMap[src]}翻译成${langMap[tgt]}，用最自然的口语表达，只输出翻译结果：\n${text}`
-                );
+                const result = await callTranslate(text, src, tgt, 'casual');
                 outputEl.value = result;
                 showToast('翻译完成！');
             } catch (e) {
@@ -1383,7 +1378,7 @@
             addConvoMsg('zh', text, true);
             input.value = '';
             try {
-                const t = await callDeepSeek('资深中越翻译专家，精通口语和俚语，翻译像朋友聊天一样自然。', '将以下简体中文翻译成越南语，用口语化表达，像越南人日常说话一样自然，只输出翻译结果：\n' + text);
+                const t = await callTranslate(text, 'zh', 'vi', 'casual');
                 addConvoTranslated('vi', t);
             } catch { showToast(i18n[currentLang].toastError); }
         }
@@ -1395,7 +1390,7 @@
             addConvoMsg('vi', text, true);
             input.value = '';
             try {
-                const t = await callDeepSeek('资深中越翻译专家，精通口语和俚语，翻译像朋友聊天一样自然。', '将以下越南语翻译成简体中文，用口语化表达，像中国人日常说话一样自然，只输出翻译结果：\n' + text);
+                const t = await callTranslate(text, 'vi', 'zh', 'casual');
                 addConvoTranslated('zh', t);
             } catch { showToast(i18n[currentLang].toastError); }
         }
