@@ -24,7 +24,7 @@ module.exports = async function handler(req, res) {
         return '';
     }).trim();
     
-    const apiKey = process.env.DEEPSEEK_API_KEY || 'sk-77b1d1d7ac91451da6eba6cf4cabbf93';
+    const apiKey = process.env.DEEPSEEK_API_KEY;
     
     const langMap = {
         'zh': '简体中文',
