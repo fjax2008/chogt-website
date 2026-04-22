@@ -1629,6 +1629,8 @@
             reader.readAsDataURL(file);
         }
 
+        const QWEN_API_KEY = 'sk-682a1ff0796449d08926320b885e664a';
+
         async function performOCR() {
             if (!currentImageData) return;
             const resultBox = document.getElementById('ocrResultBox');
@@ -1637,21 +1639,27 @@
             preview.innerHTML = '<div class="ocr-loading"><div class="spinner"></div>正在识别…</div>';
             try {
                 const prompt = currentLang === 'zh'
-                    ? '请识别图片中的文字并翻译成中文，只输出翻译结果。'
-                    : '请识别图片中的文字并翻译成越南语，只输出翻译结果。';
-                const r = await fetch('https://api.deepseek.com/v1/chat/completions', {
+                    ? '请识别图片中的越南语文字并翻译成中文。只输出中文翻译结果，不要显示原文，不要加任何说明。'
+                    : '请识别图片中的中文文字并翻译成越南语。只输出越南语翻译结果，不要显示原文，不要加任何说明。';
+                const r = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DEEPSEEK_API_KEY },
-                    body: JSON.stringify({ model: 'deepseek-chat', messages: [{ role: 'user', content: [{ type: 'image_url', image_url: { url: currentImageData } }, { type: 'text', text: prompt }] }] })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + QWEN_API_KEY },
+                    body: JSON.stringify({
+                        model: 'qwen-vl-max',
+                        messages: [{ role: 'user', content: [{ type: 'image_url', image_url: { url: currentImageData } }, { type: 'text', text: prompt }] }],
+                        temperature: 0.3,
+                        max_tokens: 2000
+                    })
                 });
                 const d = await r.json();
-                if (!r.ok) throw new Error();
+                if (!r.ok) throw new Error(d.error?.message || 'API error');
                 preview.innerHTML = `<img src="${currentImageData}" alt="preview">`;
                 resultBox.classList.add('show');
                 resultEl.textContent = d.choices[0].message.content.trim() || '未识别到文字';
                 showToast('识别完成！');
             } catch (err) {
                 preview.innerHTML = '<div class="ocr-loading" style="color:var(--error)">😢 识别失败，请重试</div>';
+                console.error('OCR error:', err);
             }
         }
 
