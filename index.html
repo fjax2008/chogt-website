@@ -934,7 +934,7 @@
                 <div class="lobby-card fade-in">
                     <div class="lobby-title" data-i18n="lobbyJoin">🔑 加入房间</div>
                     <div class="lobby-field">
-                        <input type="text" id="joinRoomId" placeholder="输入2位房间号" maxlength="2" inputmode="numeric" data-i18n-placeholder="lobbyRoomId">
+                        <input type="tel" id="joinRoomId" placeholder="输入2位房间号" maxlength="2" inputmode="numeric" pattern="[0-9]*" autocomplete="off" data-i18n-placeholder="lobbyRoomId" oninput="this.value=this.value.replace(/\D/g,'')">
                     </div>
                     <div class="lobby-field">
                         <input type="text" id="joinName" placeholder="你的昵称（留空自动生成）" maxlength="20" data-i18n-placeholder="lobbyNickname">
@@ -1181,7 +1181,7 @@
 
             // URL param auto-join
             const p = new URLSearchParams(location.search).get('room');
-            if (p && p.length === 2) document.getElementById('joinRoomId').value = p;
+            if (p && /^\d{2}$/.test(p)) document.getElementById('joinRoomId').value = p;
         });
 
         // ========== MODE SWITCH ==========
@@ -1476,8 +1476,8 @@
         }
 
         function crJoinRoom() {
-            const id = document.getElementById('joinRoomId').value.trim();
-            if (!id || id.length !== 2) { showToast('请输入2位房间号'); return; }
+            const id = document.getElementById('joinRoomId').value.trim().replace(/\D/g,'');
+            if (!id || id.length !== 2) { showToast('请输入2位数字房间号'); return; }
             const name = document.getElementById('joinName').value.trim();
             crLang = document.getElementById('joinLang').value;
             crRoomId = id;
