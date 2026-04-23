@@ -10,7 +10,7 @@ module.exports = async function handler(req, res) {
 
     if (!image) return res.status(400).json({ error: 'Image is required' });
 
-    const apiKey = 'sk-682a1ff0796449d08926320b885e664a';
+    const apiKey = process.env.QWEN_API_KEY;
         const apiUrl = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
         
         const langMap = { zh: '简体中文', vi: '越南语' };
