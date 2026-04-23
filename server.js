@@ -10,6 +10,10 @@ const PORT = process.env.PORT || 3000;
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY || '';
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
 
+// ========== 阿里云通义千问 API 配置 ==========
+const QWEN_API_KEY = process.env.QWEN_API_KEY || '';
+const QWEN_API_URL = 'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions';
+
 // ========== 房间管理 ==========
 const rooms = new Map(); // roomId -> { users: Map<wsId, user>, createdAt }
 
@@ -132,6 +136,82 @@ function detectLanguage(text) {
   return 'zh';
 }
 
+// ========== OCR (阿里云通义千问 VL) ==========
+function ocrImage(imageBase64, targetLang = 'zh') {
+  return new Promise((resolve, reject) => {
+    if (!QWEN_API_KEY) {
+      console.warn('[OCR] 未配置 QWEN_API_KEY');
+      return resolve('');
+    }
+
+    const langMap = { zh: '简体中文', vi: '越南语' };
+    const targetName = langMap[targetLang] || '简体中文';
+
+    const prompt = targetLang === 'zh'
+      ? '请识别图片中的越南语文字并翻译成中文。只输出中文翻译结果，不要显示原文，不要加任何说明。'
+      : '请识别图片中的中文文字并翻译成越南语。只输出越南语翻译结果，不要显示原文，不要加任何说明。';
+
+    const requestBody = JSON.stringify({
+      model: 'qwen-vl-max',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: imageBase64 } },
+            { type: 'text', text: prompt }
+          ]
+        }
+      ],
+      temperature: 0.3,
+      max_tokens: 2000
+    });
+
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${QWEN_API_KEY}`
+      },
+      timeout: 30000
+    };
+
+    const req = https.request(QWEN_API_URL, options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          if (json.choices && json.choices[0] && json.choices[0].message) {
+            resolve(json.choices[0].message.content.trim());
+          } else if (json.error) {
+            console.error('[Qwen API 错误]', json.error);
+            resolve('');
+          } else {
+            resolve('');
+          }
+        } catch (e) {
+          console.error('[OCR解析错误]', e.message);
+          resolve('');
+        }
+      });
+    });
+
+    req.on('error', (err) => {
+      console.error('[OCR请求错误]', err.message);
+      resolve('');
+    });
+
+    req.on('timeout', () => {
+      console.error('[OCR请求超时]');
+      req.destroy();
+      resolve('');
+    });
+
+    req.write(requestBody);
+    req.end();
+  });
+}
+
 // ========== HTTP 服务器 ==========
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -145,6 +225,29 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer((req, res) => {
+  // OCR API
+  if (req.method === 'POST' && req.url === '/api/ocr') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const { image, targetLang } = JSON.parse(body);
+        if (!image) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ error: 'Missing image' }));
+        }
+        const result = await ocrImage(image, targetLang || 'zh');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ text: result }));
+      } catch (e) {
+        console.error('[OCR错误]', e.message);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'OCR failed' }));
+      }
+    });
+    return;
+  }
+
   // 翻译 API
   if (req.method === 'POST' && req.url === '/api/translate') {
     let body = '';
