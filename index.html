@@ -7,6 +7,28 @@
     <meta name="theme-color" content="#0a0e27">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- SEO -->
+    <meta name="description" content="甜甜翻译 — 智能中越互译工具。支持中文⇄越南语翻译、图片OCR识别、双语对话、实时聊天房。精准高效，随身翻译助手。">
+    <meta name="keywords" content="中越翻译,越南语翻译,中文翻译越南语,翻译工具,图片翻译,OCR翻译,中越互译,越南语学习">
+    <meta name="author" content="鹏哥">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.chogt.com">
+    <!-- Open Graph (微信/Facebook等社交分享预览) -->
+    <meta property="og:title" content="甜甜翻译 - 中越智能互译">
+    <meta property="og:description" content="中文⇄越南语智能翻译工具，支持文本翻译、图片OCR、双语对话、实时聊天房。">
+    <meta property="og:url" content="https://www.chogt.com">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="甜甜翻译">
+    <meta property="og:locale" content="zh_CN">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="甜甜翻译 - 中越智能互译">
+    <meta name="twitter:description" content="中文⇄越南语智能翻译工具，支持文本翻译、图片OCR、双语对话、实时聊天房。">
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <style>
@@ -1340,13 +1362,13 @@
             <div class="modal-qr-grid">
                 <div class="modal-qr-item wechat">
                     <div class="modal-qr-frame">
-                        <img src="wechat-qr.png" alt="微信收款码" onerror="this.style.display='none'">
+                        <img src="wechat-qr.webp" alt="微信收款码" onerror="this.src='wechat-qr.png'">
                     </div>
                     <div class="modal-qr-label" data-i18n="wechatPay">💚 微信支付</div>
                 </div>
                 <div class="modal-qr-item alipay">
                     <div class="modal-qr-frame">
-                        <img src="alipay-qr.png" alt="支付宝收款码" onerror="this.style.display='none'">
+                        <img src="alipay-qr.webp" alt="支付宝收款码" onerror="this.src='alipay-qr.png'">
                     </div>
                     <div class="modal-qr-label" data-i18n="alipay">💙 VND支付</div>
                 </div>
@@ -2033,5 +2055,17 @@ document.addEventListener("DOMContentLoaded", initSponsorBanner);
 */
 
     </script>
+
+    <!-- ========== 访客统计 (请替换为你的统计ID) ========== -->
+    <!-- 方案1: Umami (推荐, 隐私友好, 免费自托管)
+    <script async defer data-website-id="YOUR_UMAMI_ID" src="https://your-umami-instance.com/script.js"></script>
+    -->
+    <!-- 方案2: Google Analytics 4
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR_GA_ID"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-YOUR_GA_ID');</script>
+    -->
+    <!-- 方案3: Cloudflare Web Analytics
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "YOUR_CF_TOKEN"}'></script>
+    -->
 </body>
 </html>

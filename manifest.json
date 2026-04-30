@@ -1,0 +1,18 @@
+{
+  "name": "甜甜翻译",
+  "short_name": "甜甜翻译",
+  "description": "中越智能互译工具",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0e27",
+  "theme_color": "#0a0e27",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "lang": "zh-CN"
+}
