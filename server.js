@@ -238,7 +238,7 @@ const server = http.createServer((req, res) => {
         }
         const result = await ocrImage(image, targetLang || 'zh');
         res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ text: result }));
+        res.end(JSON.stringify({ result: result, error: null }));
       } catch (e) {
         console.error('[OCR错误]', e.message);
         res.writeHead(500, { 'Content-Type': 'application/json' });
