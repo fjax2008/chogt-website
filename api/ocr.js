@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
                     'Authorization': `Bearer ${apiKey}`
                 },
                 body: JSON.stringify({
-                    model: 'qwen-vl-max',
+                    model: 'qwen-vl-plus',
                     messages: [
                         {
                             role: 'user',

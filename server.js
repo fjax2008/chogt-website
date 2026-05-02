@@ -152,7 +152,7 @@ function ocrImage(imageBase64, targetLang = 'zh') {
       : '请识别图片中的中文文字并翻译成越南语。只输出越南语翻译结果，不要显示原文，不要加任何说明。';
 
     const requestBody = JSON.stringify({
-      model: 'qwen-vl-max',
+      model: 'qwen-vl-plus',
       messages: [
         {
           role: 'user',
@@ -172,7 +172,7 @@ function ocrImage(imageBase64, targetLang = 'zh') {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${QWEN_API_KEY}`
       },
-      timeout: 30000
+      timeout: 20000
     };
 
     const req = https.request(QWEN_API_URL, options, (res) => {

@@ -1703,12 +1703,32 @@
         function selectImage() { document.getElementById('imageInput').click(); }
         function takePhoto() { document.getElementById('cameraInput').click(); }
 
+        // 图片压缩：缩小 + 降低质量，减少上传时间和 API 处理时间
+        function compressImage(fileOrUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const MAX = 1024;
+                    let w = img.width, h = img.height;
+                    if (w > MAX || h > MAX) {
+                        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+                        else       { w = Math.round(w * MAX / h); h = MAX; }
+                    }
+                    const c = document.createElement('canvas');
+                    c.width = w; c.height = h;
+                    c.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve(c.toDataURL('image/jpeg', 0.75));
+                };
+                img.src = typeof fileOrUrl === 'string' ? fileOrUrl : URL.createObjectURL(fileOrUrl);
+            });
+        }
+
         function handleImageSelect(e) {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = ev => {
-                currentImageData = ev.target.result;
+            reader.onload = async (ev) => {
+                currentImageData = await compressImage(file);
                 document.getElementById('cameraPreview').innerHTML = `<img src="${currentImageData}" alt="preview">`;
                 performOCR();
             };
@@ -1720,11 +1740,8 @@
             const resultBox = document.getElementById('ocrResultBox');
             const resultEl = document.getElementById('ocrResult');
             const preview = document.getElementById('cameraPreview');
-            preview.innerHTML = '<div class="ocr-loading"><div class="spinner"></div>正在识别…</div>';
+            preview.innerHTML = '<div class="ocr-loading"><div class="spinner"></div>AI 识别翻译中…</div>';
             try {
-                const prompt = currentLang === 'zh'
-                    ? '请识别图片中的文字并翻译成中文，只输出翻译结果。'
-                    : '请识别图片中的文字并翻译成越南语，只输出翻译结果。';
                 const ocrText = await callOCR(currentImageData, currentLang === 'zh' ? 'zh' : 'vi');
                 preview.innerHTML = `<img src="${currentImageData}" alt="preview">`;
                 resultBox.classList.add('show');
