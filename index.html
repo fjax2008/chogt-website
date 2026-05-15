@@ -20,6 +20,10 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="甜甜翻译">
     <meta property="og:locale" content="zh_CN">
+    <meta property="og:image" content="https://www.chogt.com/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="甜甜翻译 - 中越智能互译工具">
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="甜甜翻译 - 中越智能互译">
@@ -2076,5 +2080,15 @@ document.addEventListener("DOMContentLoaded", initSponsorBanner);
     <!-- Cloudflare Web Analytics -->
     <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "8e579499b2954156a1a1533e1cc8737c"}'></script>
     <!-- End Cloudflare Web Analytics -->
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('SW registered:', reg.scope))
+                    .catch(err => console.log('SW registration failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>
