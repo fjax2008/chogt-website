@@ -601,5 +601,3 @@
             t._timer = setTimeout(() => t.classList.remove('show'), 2200);
         }
 
-/*
-
