@@ -1,4 +1,4 @@
-# 🍩 甜甜翻译 — 中越智能互译
+# 🐉 鹏哥翻译 — 中越智能互译
 
 > 中文 ⇄ 越南语 · 智能互译 · 随身翻译助手
 
@@ -9,29 +9,38 @@
 - 💬 **双语对话** — 模拟中越对话场景，实时双语显示
 - 🏠 **实时聊天房** — WebSocket 多人实时聊天，自动翻译消息
 - 🎨 **精美 UI** — 玻璃拟态 + 渐变，暗色主题，移动端优先
+- 📱 **PWA 支持** — 可安装到主屏幕，离线缓存
 
 ## 🛠 技术栈
 
 | 层 | 技术 |
 |---|---|
-| 前端 | HTML5 + CSS3 + Vanilla JS（单页应用） |
+| 前端 | HTML5 + CSS3 + Vanilla JS（SPA） |
 | 后端 | Node.js + WebSocket (`ws`) |
 | 翻译 | DeepSeek Chat API |
 | OCR | 阿里云通义千问 Qwen-VL |
 | Serverless | Vercel Functions (`api/`) |
-| 托管 | GitHub Pages + 自定义域名 |
+| 托管 | Vercel + 自定义域名 |
 
 ## 📁 项目结构
 
 ```
 chogt-website/
 ├── index.html          # 主页面（SPA）
+├── css/
+│   └── style.css       # 样式表
+├── js/
+│   └── app.js          # 前端逻辑
 ├── server.js           # Node.js 后端（WebSocket + API 代理）
 ├── api/
 │   ├── translate.js    # Vercel Serverless 翻译接口
 │   └── ocr.js          # Vercel Serverless OCR 接口
 ├── vercel.json         # Vercel 部署配置
 ├── manifest.json       # PWA Manifest
+├── service-worker.js   # PWA Service Worker
+├── robots.txt          # SEO robots
+├── sitemap.xml         # SEO sitemap
+├── 404.html            # 404 页面
 ├── favicon.svg         # 网站图标
 ├── apple-touch-icon.png # iOS 主屏图标
 └── CNAME               # 自定义域名绑定
@@ -39,9 +48,9 @@ chogt-website/
 
 ## 🚀 部署
 
-- **前端静态文件** → GitHub Pages，通过 `CNAME` 绑定 `www.chogt.com`
+- **静态文件** → Vercel，通过 `CNAME` 绑定 `www.chogt.com`
 - **API** → Vercel Serverless Functions (`api/` 目录)
-- **WebSocket 服务** → 独立服务器运行 `server.js`
+- **WebSocket 服务** → Render 独立运行 `server.js`
 
 ## 👤 作者
 

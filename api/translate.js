@@ -1,7 +1,29 @@
+// Simple in-memory rate limiter (resets per Vercel cold start, sufficient for personal use)
+const rateLimit = new Map();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const RATE_LIMIT_MAX = 30; // max requests per window
+
+function checkRateLimit(ip) {
+    const now = Date.now();
+    const entry = rateLimit.get(ip);
+    if (!entry || now - entry.start > RATE_LIMIT_WINDOW) {
+        rateLimit.set(ip, { start: now, count: 1 });
+        return true;
+    }
+    entry.count++;
+    return entry.count <= RATE_LIMIT_MAX;
+}
+
 module.exports = async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    // Rate limiting
+    const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
+    if (!checkRateLimit(ip)) {
+        return res.status(429).json({ error: '请求过于频繁，请稍后再试' });
+    }
     
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
