@@ -1,8 +1,10 @@
-// Service Worker for 甜甜翻译 PWA
-const CACHE_NAME = 'tiantian-v1';
+// Service Worker for 鹏哥翻译 PWA
+const CACHE_NAME = 'pengge-v2';
 const STATIC_ASSETS = [
     '/',
     '/index.html',
+    '/css/style.css',
+    '/js/app.js',
     '/favicon.svg',
     '/favicon.ico',
     '/apple-touch-icon.png',
@@ -35,19 +37,18 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// Fetch - network first, fallback to cache
+// Fetch - stale-while-revalidate for static, network-only for API
 self.addEventListener('fetch', (event) => {
     // Skip non-GET requests and API calls
     if (event.request.method !== 'GET') return;
     if (event.request.url.includes('/api/')) {
-        // API calls: network only
+        // API calls: network only (Vercel serverless)
         return;
     }
 
     event.respondWith(
-        fetch(event.request)
-            .then((response) => {
-                // Cache successful responses
+        caches.match(event.request).then((cached) => {
+            const fetched = fetch(event.request).then((response) => {
                 if (response.status === 200) {
                     const responseClone = response.clone();
                     caches.open(CACHE_NAME).then((cache) => {
@@ -55,12 +56,9 @@ self.addEventListener('fetch', (event) => {
                     });
                 }
                 return response;
-            })
-            .catch(() => {
-                // Fallback to cache
-                return caches.match(event.request).then((response) => {
-                    return response || caches.match('/');
-                });
-            })
+            });
+
+            return cached || fetched;
+        })
     );
 });
