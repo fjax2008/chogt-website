@@ -44,6 +44,16 @@
                 chatUserJoined: '加入了房间',
                 chatUserLeft: '离开了房间',
                 chatLangSwitched: '已切换为中文',
+                newsTitle: '📰 热点资讯',
+                newsWeibo: '🇨🇳 微博热搜',
+                newsVietnam: '🇻🇳 Tin Việt Nam',
+                newsLoading: '正在加载热搜…',
+                newsError: '暂无热搜数据',
+                newsRefresh: '🔄 刷新',
+                newsHotTag: '热',
+                newsBoomTag: '爆',
+                newsViewSource: '查看原文',
+                modeNews: '热榜',
             },
             vi: {
                 pageTitle: 'Dịch Thiên Thiên - Trung Việt',
@@ -89,6 +99,16 @@
                 chatUserJoined: 'đã tham gia',
                 chatUserLeft: 'đã rời phòng',
                 chatLangSwitched: 'Đã chuyển sang Tiếng Việt',
+                newsTitle: '📰 Tin Hot',
+                newsWeibo: '🇨🇳 Weibo Hot',
+                newsVietnam: '🇻🇳 Tin Việt Nam',
+                newsLoading: 'Đang tải tin hot…',
+                newsError: 'Không có dữ liệu',
+                newsRefresh: '🔄 Làm mới',
+                newsHotTag: 'Hot',
+                newsBoomTag: 'Bùng',
+                newsViewSource: 'Xem nguồn',
+                modeNews: 'Tin Hot',
             }
         };
 
@@ -183,10 +203,12 @@
             document.getElementById('cameraMode').style.display = mode === 'camera' ? 'flex' : 'none';
             document.getElementById('conversationMode').style.display = mode === 'conversation' ? 'flex' : 'none';
             document.getElementById('chatroomMode').style.display = mode === 'chatroom' ? 'flex' : 'none';
+            document.getElementById('newsMode').style.display = mode === 'news' ? 'flex' : 'none';
+            if (mode === 'news' && !newsLoaded) { fetchNews(); }
         }
 
         // ========== SWIPE GESTURE FOR MODE SWITCH ==========
-        const MODES = ['translate', 'camera', 'conversation', 'chatroom'];
+        const MODES = ['translate', 'camera', 'conversation', 'chatroom', 'news'];
         let currentModeIndex = 0;
         let touchStartX = 0;
         let touchStartY = 0;
@@ -590,6 +612,112 @@
         function crSetConn(s) {
             const el = document.getElementById('chatConn');
             el.className = `conn-indicator ${s}`;
+        }
+
+        // ========== NEWS ==========
+        let newsData = { weibo: [], vietnam: [] };
+        let newsLoaded = false;
+        let currentNewsTab = 'weibo';
+
+        async function fetchNews() {
+            const loading = document.getElementById('newsLoading');
+            const list = document.getElementById('newsList');
+            const error = document.getElementById('newsError');
+
+            loading.style.display = 'flex';
+            list.style.display = 'none';
+            error.style.display = 'none';
+
+            try {
+                const resp = await fetch('/api/news');
+                if (!resp.ok) throw new Error('API error');
+                newsData = await resp.json();
+                newsLoaded = true;
+
+                document.getElementById('newsUpdated').textContent =
+                    '更新于 ' + new Date(newsData.updated).toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' });
+
+                renderNews();
+            } catch(e) {
+                console.error('News fetch failed:', e);
+                loading.style.display = 'none';
+                error.style.display = 'flex';
+            }
+        }
+
+        function switchNewsTab(tab) {
+            currentNewsTab = tab;
+            document.querySelectorAll('.news-subtab').forEach(b => {
+                const span = b.querySelector('span');
+                const isWeibo = span && span.getAttribute('data-i18n') === 'newsWeibo';
+                const isVietnam = span && span.getAttribute('data-i18n') === 'newsVietnam';
+                b.classList.toggle('active',
+                    (tab === 'weibo' && isWeibo) || (tab === 'vietnam' && isVietnam)
+                );
+            });
+            renderNews();
+        }
+
+        function renderNews() {
+            const list = document.getElementById('newsList');
+            const loading = document.getElementById('newsLoading');
+            const error = document.getElementById('newsError');
+
+            loading.style.display = 'none';
+
+            const items = currentNewsTab === 'weibo' ? newsData.weibo : newsData.vietnam;
+
+            if (!items || items.length === 0) {
+                list.style.display = 'none';
+                error.style.display = 'flex';
+                return;
+            }
+
+            error.style.display = 'none';
+            list.style.display = 'flex';
+            list.innerHTML = items.map(item => renderNewsItem(item)).join('');
+
+            // 入场动画
+            list.querySelectorAll('.news-item').forEach((el, i) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(-10px)';
+                setTimeout(() => {
+                    el.style.transition = 'all 0.3s ease';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateX(0)';
+                }, i * 50);
+            });
+        }
+
+        function renderNewsItem(item) {
+            const rankClass = item.rank === 1 ? 'top1' : item.rank === 2 ? 'top2' : item.rank === 3 ? 'top3' : 'normal';
+            const rankIcon = currentNewsTab === 'weibo' && item.rank <= 3
+                ? (item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : '🥉')
+                : item.rank;
+            const tagClass = item.tag === '爆' ? 'boom' : 'hot';
+            const tag = item.tag || '';
+
+            const hotScoreHtml = item.hotScoreDisplay
+                ? `<span class="news-hot">🔥 ${item.hotScoreDisplay}</span>`
+                : (item.pubDate ? `<span class="news-hot">${item.pubDate}</span>` : '');
+
+            const tagHtml = tag ? `<span class="news-tag ${tagClass}">${tag}</span>` : '';
+
+            return `
+                <a class="news-item" href="${item.url}" target="_blank" rel="noopener">
+                    <span class="news-rank ${rankClass}">${rankIcon}</span>
+                    <span class="news-info">
+                        <span class="news-title">${esc(item.title)}</span>
+                        <span class="news-meta">${tagHtml}${hotScoreHtml}</span>
+                    </span>
+                    <span class="news-arrow">›</span>
+                </a>
+            `;
+        }
+
+        function refreshNews() {
+            newsLoaded = false;
+            fetchNews();
         }
 
         // ========== TOAST ==========
