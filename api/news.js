@@ -93,9 +93,13 @@ async function fetchVnNews() {
 
     while ((match = itemRegex.exec(xml)) !== null && count < 10) {
         const itemXml = match[1];
-        const titleMatch = itemXml.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/);
+        // Support both CDATA and plain text title
+        let titleMatch = itemXml.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/);
+        if (!titleMatch) titleMatch = itemXml.match(/<title>(.*?)<\/title>/);
         const linkMatch = itemXml.match(/<link>(.*?)<\/link>/);
-        const descMatch = itemXml.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/);
+        // Support both CDATA and plain text description
+        let descMatch = itemXml.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/);
+        if (!descMatch) descMatch = itemXml.match(/<description>(.*?)<\/description>/);
         const pubDateMatch = itemXml.match(/<pubDate>(.*?)<\/pubDate>/);
 
         if (titleMatch && linkMatch) {
