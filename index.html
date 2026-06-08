@@ -945,6 +945,161 @@
 
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+        /* ========== NEWS MODE ========== */
+        .news-section { display: none; flex-direction: column; gap: 10px; }
+
+        .news-subtabs {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: 100px;
+            padding: 3px;
+            border: 1px solid var(--glass-border);
+            gap: 2px;
+        }
+
+        .news-subtab {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 100px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .news-subtab.active {
+            background: var(--accent-gradient);
+            color: #fff;
+            box-shadow: 0 2px 12px var(--accent-glow);
+        }
+
+        .news-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 32px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .news-error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 32px;
+            color: var(--text-tertiary);
+            font-size: 0.85rem;
+        }
+
+        .news-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .news-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .news-item:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--glass-border-strong);
+            transform: translateX(3px);
+        }
+
+        .news-rank {
+            width: 26px;
+            height: 26px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .news-rank.top1 { background: linear-gradient(135deg, #f43e5e, #f97316); color: #fff; }
+        .news-rank.top2 { background: linear-gradient(135deg, #f97316, #fbbf24); color: #fff; }
+        .news-rank.top3 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; }
+        .news-rank.normal { background: rgba(255,255,255,0.06); color: var(--text-secondary); }
+
+        .news-info { flex: 1; min-width: 0; }
+
+        .news-title {
+            font-size: 0.85rem;
+            font-weight: 500;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 3px;
+        }
+
+        .news-tag {
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .news-tag.hot {
+            background: rgba(244,67,54,0.15);
+            color: #f44336;
+        }
+
+        .news-tag.boom {
+            background: rgba(255,64,129,0.2);
+            color: #ff4081;
+        }
+
+        .news-hot {
+            font-size: 0.65rem;
+            color: var(--text-tertiary);
+        }
+
+        .news-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+
+        .news-updated {
+            font-size: 0.65rem;
+            color: var(--text-tertiary);
+        }
+
+        .news-item .news-arrow {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+        }
+
         /* ========== FOOTER ========== */
         .footer {
             text-align: center;
@@ -1074,6 +1229,9 @@
             </button>
             <button class="mode-tab" onclick="setMode('chatroom')" data-mode="chatroom">
                 <span class="tab-icon">🏠</span> <span data-i18n="modeChatroom">聊天室</span>
+            </button>
+            <button class="mode-tab" onclick="setMode('news')" data-mode="news">
+                <span class="tab-icon">📰</span> <span data-i18n="modeNews">热榜</span>
             </button>
         </div>
 
@@ -1223,6 +1381,39 @@
             </div>
         </div>
 
+        <!-- ===== NEWS MODE ===== -->
+        <div id="newsMode" class="news-section fade-in">
+            <!-- Sub Tabs -->
+            <div class="news-subtabs">
+                <button class="news-subtab active" onclick="switchNewsTab('weibo')">
+                    <span data-i18n="newsWeibo">🇨🇳 微博热搜</span>
+                </button>
+                <button class="news-subtab" onclick="switchNewsTab('vietnam')">
+                    <span data-i18n="newsVietnam">🇻🇳 Tin Việt Nam</span>
+                </button>
+            </div>
+
+            <!-- Loading -->
+            <div class="news-loading" id="newsLoading">
+                <div class="spinner"></div>
+                <span data-i18n="newsLoading">正在加载热搜…</span>
+            </div>
+
+            <!-- News List -->
+            <div class="news-list" id="newsList"></div>
+
+            <!-- Error -->
+            <div class="news-error" id="newsError" style="display:none">
+                <span>📭</span><span data-i18n="newsError">暂无热搜数据</span>
+            </div>
+
+            <!-- Refresh Button -->
+            <div class="news-actions">
+                <button class="btn btn-ghost" onclick="refreshNews()" data-i18n="newsRefresh">🔄 刷新</button>
+                <span class="news-updated" id="newsUpdated"></span>
+            </div>
+        </div>
+
         <!-- FOOTER -->
         <div class="footer">
             <p data-i18n="footer">微信号：D399HV · <a href="#">鹏哥提供</a> © 2026</p>
@@ -1243,6 +1434,7 @@
                 modeCamera: '拍照',
                 modeChat: '对话',
                 modeChatroom: '聊天室',
+                modeNews: '热榜',
                 inputLabel: '输入',
                 outputLabel: '翻译结果',
                 inputPlaceholder: '粘贴文本，自动检测语言并翻译…',
@@ -1279,6 +1471,15 @@
                 chatUserJoined: '加入了房间',
                 chatUserLeft: '离开了房间',
                 chatLangSwitched: '已切换为中文',
+                newsTitle: '📰 热点资讯',
+                newsWeibo: '🇨🇳 微博热搜',
+                newsVietnam: '🇻🇳 Tin Việt Nam',
+                newsLoading: '正在加载热搜…',
+                newsError: '暂无热搜数据',
+                newsRefresh: '🔄 刷新',
+                newsHotTag: '热',
+                newsBoomTag: '爆',
+                newsViewSource: '查看原文',
             },
             vi: {
                 pageTitle: 'Dịch Thiên Thiên - Trung Việt',
@@ -1288,6 +1489,7 @@
                 modeCamera: 'Ảnh',
                 modeChat: 'Trò chuyện',
                 modeChatroom: 'Phòng chat',
+                modeNews: 'Tin Hot',
                 inputLabel: 'Nhập',
                 outputLabel: 'Kết quả',
                 inputPlaceholder: 'Dán văn bản, tự động phát hiện ngôn ngữ…',
@@ -1324,6 +1526,15 @@
                 chatUserJoined: 'đã tham gia',
                 chatUserLeft: 'đã rời phòng',
                 chatLangSwitched: 'Đã chuyển sang Tiếng Việt',
+                newsTitle: '📰 Tin Hot',
+                newsWeibo: '🇨🇳 Weibo Hot',
+                newsVietnam: '🇻🇳 Tin Việt Nam',
+                newsLoading: 'Đang tải tin hot…',
+                newsError: 'Không có dữ liệu',
+                newsRefresh: '🔄 Làm mới',
+                newsHotTag: 'Hot',
+                newsBoomTag: 'Bùng',
+                newsViewSource: 'Xem nguồn',
             }
         };
 
@@ -1407,10 +1618,12 @@
             document.getElementById('cameraMode').style.display = mode === 'camera' ? 'flex' : 'none';
             document.getElementById('conversationMode').style.display = mode === 'conversation' ? 'flex' : 'none';
             document.getElementById('chatroomMode').style.display = mode === 'chatroom' ? 'flex' : 'none';
+            document.getElementById('newsMode').style.display = mode === 'news' ? 'flex' : 'none';
+            if (mode === 'news' && !newsLoaded) { fetchNews(); }
         }
 
         // ========== SWIPE GESTURE FOR MODE SWITCH ==========
-        const MODES = ['translate', 'camera', 'conversation', 'chatroom'];
+        const MODES = ['translate', 'camera', 'conversation', 'chatroom', 'news'];
         let currentModeIndex = 0;
         let touchStartX = 0;
         let touchStartY = 0;
@@ -1814,6 +2027,112 @@
         function crSetConn(s) {
             const el = document.getElementById('chatConn');
             el.className = `conn-indicator ${s}`;
+        }
+
+        // ========== NEWS ==========
+        let newsData = { weibo: [], vietnam: [] };
+        let newsLoaded = false;
+        let currentNewsTab = 'weibo';
+
+        async function fetchNews() {
+            const loading = document.getElementById('newsLoading');
+            const list = document.getElementById('newsList');
+            const error = document.getElementById('newsError');
+
+            loading.style.display = 'flex';
+            list.style.display = 'none';
+            error.style.display = 'none';
+
+            try {
+                const resp = await fetch('/api/news');
+                if (!resp.ok) throw new Error('API error');
+                newsData = await resp.json();
+                newsLoaded = true;
+
+                document.getElementById('newsUpdated').textContent =
+                    '更新于 ' + new Date(newsData.updated).toLocaleTimeString('zh-CN', { hour:'2-digit', minute:'2-digit' });
+
+                renderNews();
+            } catch(e) {
+                console.error('News fetch failed:', e);
+                loading.style.display = 'none';
+                error.style.display = 'flex';
+            }
+        }
+
+        function switchNewsTab(tab) {
+            currentNewsTab = tab;
+            document.querySelectorAll('.news-subtab').forEach(b => {
+                const span = b.querySelector('span');
+                const isWeibo = span && span.getAttribute('data-i18n') === 'newsWeibo';
+                const isVietnam = span && span.getAttribute('data-i18n') === 'newsVietnam';
+                b.classList.toggle('active',
+                    (tab === 'weibo' && isWeibo) || (tab === 'vietnam' && isVietnam)
+                );
+            });
+            renderNews();
+        }
+
+        function renderNews() {
+            const list = document.getElementById('newsList');
+            const loading = document.getElementById('newsLoading');
+            const error = document.getElementById('newsError');
+
+            loading.style.display = 'none';
+
+            const items = currentNewsTab === 'weibo' ? newsData.weibo : newsData.vietnam;
+
+            if (!items || items.length === 0) {
+                list.style.display = 'none';
+                error.style.display = 'flex';
+                return;
+            }
+
+            error.style.display = 'none';
+            list.style.display = 'flex';
+            list.innerHTML = items.map(item => renderNewsItem(item)).join('');
+
+            // 入场动画
+            list.querySelectorAll('.news-item').forEach((el, i) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(-10px)';
+                setTimeout(() => {
+                    el.style.transition = 'all 0.3s ease';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateX(0)';
+                }, i * 50);
+            });
+        }
+
+        function renderNewsItem(item) {
+            const rankClass = item.rank === 1 ? 'top1' : item.rank === 2 ? 'top2' : item.rank === 3 ? 'top3' : 'normal';
+            const rankIcon = currentNewsTab === 'weibo' && item.rank <= 3
+                ? (item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : '🥉')
+                : item.rank;
+            const tagClass = item.tag === '爆' ? 'boom' : 'hot';
+            const tag = item.tag || '';
+
+            const hotScoreHtml = item.hotScoreDisplay
+                ? `<span class="news-hot">🔥 ${item.hotScoreDisplay}</span>`
+                : (item.pubDate ? `<span class="news-hot">${item.pubDate}</span>` : '');
+
+            const tagHtml = tag ? `<span class="news-tag ${tagClass}">${tag}</span>` : '';
+
+            return `
+                <a class="news-item" href="${item.url}" target="_blank" rel="noopener">
+                    <span class="news-rank ${rankClass}">${rankIcon}</span>
+                    <span class="news-info">
+                        <span class="news-title">${esc(item.title)}</span>
+                        <span class="news-meta">${tagHtml}${hotScoreHtml}</span>
+                    </span>
+                    <span class="news-arrow">›</span>
+                </a>
+            `;
+        }
+
+        function refreshNews() {
+            newsLoaded = false;
+            fetchNews();
         }
 
         // ========== TOAST ==========
