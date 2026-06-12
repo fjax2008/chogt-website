@@ -94,9 +94,6 @@
             <button class="mode-tab" onclick="setMode('chatroom')" data-mode="chatroom">
                 <span class="tab-icon">🏠</span> <span data-i18n="modeChatroom">聊天室</span>
             </button>
-            <button class="mode-tab" onclick="setMode('news')" data-mode="news">
-                <span class="tab-icon">📰</span> <span data-i18n="modeNews">热榜</span>
-            </button>
             <button class="mode-tab" onclick="window.open('https://barrel-management.onrender.com','_blank')" style="background:rgba(82,196,26,0.15);border:1px solid rgba(82,196,26,0.3)">
                 <span class="tab-icon">📦</span> 桶号管理
             </button>
@@ -245,30 +242,6 @@
                     <textarea class="chat-textarea" id="chatInput" placeholder="输入消息…" rows="1"></textarea>
                     <button class="chat-send" onclick="crSend()">发送</button>
                 </div>
-            </div>
-        </div>
-
-        <!-- ===== NEWS MODE ===== -->
-        <div id="newsMode" class="news-section fade-in">
-            <div class="news-subtabs">
-                <button class="news-subtab active" onclick="switchNewsTab('weibo')">
-                    <span data-i18n="newsWeibo">🇨🇳 微博热搜</span>
-                </button>
-                <button class="news-subtab" onclick="switchNewsTab('vietnam')">
-                    <span data-i18n="newsVietnam">🇻🇳 Tin Việt Nam</span>
-                </button>
-            </div>
-            <div class="news-loading" id="newsLoading">
-                <div class="spinner"></div>
-                <span data-i18n="newsLoading">正在加载热搜…</span>
-            </div>
-            <div class="news-list" id="newsList"></div>
-            <div class="news-error" id="newsError" style="display:none">
-                <span>📭</span><span data-i18n="newsError">暂无热搜数据</span>
-            </div>
-            <div class="news-actions">
-                <button class="btn btn-ghost" onclick="refreshNews()" data-i18n="newsRefresh">🔄 刷新</button>
-                <span class="news-updated" id="newsUpdated"></span>
             </div>
         </div>
 
