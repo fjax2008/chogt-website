@@ -2,272 +2,29 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title data-i18n="pageTitle">鹏哥翻译 - 中越互译</title>
-    <meta name="theme-color" content="#0a0e27">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <!-- SEO -->
-    <meta name="description" content="鹏哥翻译 — 智能中越互译工具。支持中文⇄越南语翻译、图片OCR识别、双语对话、实时聊天房。精准高效，随身翻译助手。">
-    <meta name="keywords" content="中越翻译,越南语翻译,中文翻译越南语,翻译工具,图片翻译,OCR翻译,中越互译,越南语学习">
-    <meta name="author" content="鹏哥">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://www.chogt.com">
-    <!-- Open Graph (微信/Facebook等社交分享预览) -->
-    <meta property="og:title" content="鹏哥翻译 - 中越智能互译">
-    <meta property="og:description" content="中文⇄越南语智能翻译工具，支持文本翻译、图片OCR、双语对话、实时聊天房。">
-    <meta property="og:url" content="https://www.chogt.com">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="鹏哥翻译">
-    <meta property="og:locale" content="zh_CN">
-    <meta property="og:image" content="https://www.chogt.com/og-image.jpg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="鹏哥翻译 - 中越智能互译工具">
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="鹏哥翻译 - 中越智能互译">
-    <meta name="twitter:description" content="中文⇄越南语智能翻译工具，支持文本翻译、图片OCR、双语对话、实时聊天房。">
-    <meta name="twitter:image" content="https://www.chogt.com/og-image.jpg">
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "鹏哥翻译",
-      "alternateName": "Pengge Translator",
-      "url": "https://www.chogt.com",
-      "description": "中文⇄越南语智能翻译工具，支持文本翻译、图片OCR、双语对话、实时聊天房",
-      "applicationCategory": "MultilingualApplication",
-      "operatingSystem": "All",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CNY" },
-      "author": { "@type": "Person", "name": "鹏哥" }
-    }
-    </script>
-    <!-- Icons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/manifest.json">
-
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="preload" href="/js/app.js" as="script">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生管桶号管理</title>
+    <meta name="theme-color" content="#1677ff">
+    <meta http-equiv="refresh" content="0;url=https://barrel-management.onrender.com">
     <style>
-        /* Critical inline styles for above-fold rendering */
-        :root {
-            --bg-deep: #0a0e27;
-            --accent: #818cf8;
-            --accent-2: #c084fc;
-        }
-        body { background: var(--bg-deep); margin: 0; }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;display:flex;align-items:center;justify-content:center;min-height:100dvh}
+        .card{background:#fff;border-radius:16px;padding:40px 32px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.08);max-width:360px;width:90%}
+        .icon{font-size:48px;margin-bottom:16px}
+        h1{font-size:20px;color:#1a1a2e;margin-bottom:8px}
+        p{font-size:14px;color:#8c8c8c;margin-bottom:20px}
+        .spinner{display:inline-block;width:20px;height:20px;border:3px solid #e8e8e8;border-top-color:#1677ff;border-radius:50%;animation:spin .6s linear infinite}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        a{color:#1677ff;text-decoration:none;font-size:14px}
     </style>
+    <script>window.location.replace('https://barrel-management.onrender.com');</script>
 </head>
 <body>
-
-    <div class="app">
-        <!-- TOP BAR -->
-        <div class="top-bar">
-            <div class="lang-pills">
-                <button class="lang-pill active" onclick="switchLang('zh')">中文</button>
-                <button class="lang-pill" onclick="switchLang('vi')">Tiếng Việt</button>
-            </div>
-        </div>
-
-        <!-- HEADER -->
-        <header class="header fade-in">
-            <h1 class="brand" data-i18n="logo">鹏哥翻译</h1>
-            <p class="tagline" data-i18n="subtitle">中文 ⇄ 越南语 · 智能互译</p>
-            <div class="date-badge" id="dateDisplay"></div>
-        </header>
-
-        <!-- MODE TABS -->
-        <div class="mode-tabs">
-            <button class="mode-tab active" onclick="setMode('translate')" data-mode="translate">
-                <span class="tab-icon">📝</span> <span data-i18n="modeTranslate">翻译</span>
-            </button>
-            <button class="mode-tab" onclick="setMode('camera')" data-mode="camera">
-                <span class="tab-icon">📷</span> <span data-i18n="modeCamera">拍照</span>
-            </button>
-            <button class="mode-tab" onclick="setMode('conversation')" data-mode="conversation">
-                <span class="tab-icon">💬</span> <span data-i18n="modeChat">对话</span>
-            </button>
-            <button class="mode-tab" onclick="setMode('chatroom')" data-mode="chatroom">
-                <span class="tab-icon">🏠</span> <span data-i18n="modeChatroom">聊天室</span>
-            </button>
-            <button class="mode-tab" onclick="location.href='https://barrel-management.onrender.com'" style="background:rgba(82,196,26,0.15);border:1px solid rgba(82,196,26,0.3)">
-                <span class="tab-icon">📦</span> 桶号管理
-            </button>
-        </div>
-
-        <!-- ===== TRANSLATE MODE ===== -->
-        <div id="translateMode" class="fade-in">
-            <div class="translate-grid">
-                <div class="translate-box">
-                    <div class="box-header">
-                        <span class="box-label" id="inputLabel" data-i18n="inputLabel">输入</span>
-                        <span class="status-dot"></span>
-                    </div>
-                    <textarea class="translate-input" id="input" placeholder="粘贴文本，自动检测语言…" data-i18n-placeholder="inputPlaceholder"></textarea>
-                </div>
-                <div class="translate-box">
-                    <div class="box-header">
-                        <span class="box-label" id="outputLabel" data-i18n="outputLabel">翻译结果</span>
-                        <span class="status-dot"></span>
-                    </div>
-                    <textarea class="translate-input" id="output" readonly placeholder="翻译结果将显示在这里…" data-i18n-placeholder="outputPlaceholder"></textarea>
-                </div>
-            </div>
-
-            <div class="loading-bar" id="loading">
-                <div class="spinner"></div>
-                <span class="loading-text" data-i18n="translating">正在翻译…</span>
-            </div>
-
-            <div class="action-row">
-                <button class="btn btn-primary" onclick="translateText()" data-i18n="btnTranslate">🌐 翻译</button>
-                <button class="btn btn-ghost" onclick="copyResult()" data-i18n="btnCopy">📋 复制</button>
-                <button class="btn btn-ghost" onclick="clearAll()" data-i18n="btnClear">🗑️ 清空</button>
-            </div>
-        </div>
-
-        <!-- ===== CAMERA MODE ===== -->
-        <div id="cameraMode" class="camera-section">
-            <div class="glass-card">
-                <div class="camera-preview" id="cameraPreview">
-                    <div class="camera-placeholder" id="cameraPlaceholder">
-                        <span class="cam-icon">📷</span>
-                        <p data-i18n="cameraTip">点击下方按钮选择图片或拍照</p>
-                    </div>
-                </div>
-                <div style="padding:12px; display:flex; gap:8px; justify-content:center;">
-                    <button class="btn btn-ghost" onclick="selectImage()">📁 选择图片</button>
-                    <button class="btn btn-primary" onclick="takePhoto()">📸 拍照</button>
-                </div>
-                <input type="file" class="hidden-input" id="imageInput" accept="image/*" onchange="handleImageSelect(event)">
-                <input type="file" class="hidden-input" id="cameraInput" accept="image/*" capture="environment" onchange="handleImageSelect(event)">
-            </div>
-
-            <div class="ocr-result-card" id="ocrResultBox">
-                <div class="ocr-title" data-i18n="ocrTitle">翻译结果</div>
-                <div class="ocr-body" id="ocrResult"></div>
-                <div class="ocr-actions">
-                    <button class="btn btn-ghost" onclick="copyOcrResult()">📋 复制</button>
-                    <button class="btn btn-ghost" onclick="resetCamera()">🔄 重新识别</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== CONVERSATION MODE ===== -->
-        <div id="conversationMode" class="convo-section">
-            <div class="convo-panel">
-                <div class="convo-header zh">
-                    <span class="convo-header-label">🇨🇳 <span data-i18n="yourChat">你的对话</span></span>
-                    <span class="convo-header-dir" data-i18n="chatDirectionZh">中文 → 越南语</span>
-                </div>
-                <div class="convo-messages" id="zhMessages">
-                    <div class="convo-empty" data-i18n="zhChatTip">👆 在这里输入中文</div>
-                </div>
-                <div class="convo-input-row">
-                    <textarea class="convo-input" id="zhInput" placeholder="输入中文…"></textarea>
-                    <button class="convo-send" onclick="sendZhMessage()" data-i18n="btnSend">发送</button>
-                </div>
-            </div>
-
-            <div class="convo-panel">
-                <div class="convo-header vi">
-                    <span class="convo-header-label">🇻🇳 <span data-i18n="viChat">越南朋友</span></span>
-                    <span class="convo-header-dir" data-i18n="chatDirectionVi">越南语 → 中文</span>
-                </div>
-                <div class="convo-messages" id="viMessages">
-                    <div class="convo-empty" data-i18n="viChatTip">👆 越南朋友的回复</div>
-                </div>
-                <div class="convo-input-row">
-                    <textarea class="convo-input" id="viInput" placeholder="Nhập tiếng Việt…"></textarea>
-                    <button class="convo-send" onclick="sendViMessage()">Gửi</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ===== CHATROOM MODE ===== -->
-        <div id="chatroomMode" class="chatroom-section">
-            <!-- LOBBY -->
-            <div id="chatLobby">
-                <div class="lobby-card fade-in">
-                    <div class="lobby-title" data-i18n="lobbyCreate">🎯 创建新房间</div>
-                    <div class="lobby-field">
-                        <input type="text" id="createName" placeholder="你的昵称（留空自动生成）" maxlength="20" data-i18n-placeholder="lobbyNickname">
-                    </div>
-                    <div class="lobby-field">
-                        <select id="createLang">
-                            <option value="zh">🇨🇳 中文</option>
-                            <option value="vi">🇻🇳 Tiếng Việt</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary" onclick="crCreateRoom()" style="width:100%" data-i18n="lobbyCreateBtn">🚀 创建房间</button>
-                </div>
-
-                <div class="lobby-divider" data-i18n="lobbyOr">或者加入已有房间</div>
-
-                <div class="lobby-card fade-in">
-                    <div class="lobby-title" data-i18n="lobbyJoin">🔑 加入房间</div>
-                    <div class="lobby-field">
-                        <input type="text" id="joinRoomId" placeholder="输入房间号" maxlength="6" inputmode="numeric" data-i18n-placeholder="lobbyRoomId">
-                    </div>
-                    <div class="lobby-field">
-                        <input type="text" id="joinName" placeholder="你的昵称（留空自动生成）" maxlength="20" data-i18n-placeholder="lobbyNickname">
-                    </div>
-                    <div class="lobby-field">
-                        <select id="joinLang">
-                            <option value="zh">🇨🇳 中文</option>
-                            <option value="vi">🇻🇳 Tiếng Việt</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-primary" onclick="crJoinRoom()" style="width:100%" data-i18n="lobbyJoinBtn">🚪 加入房间</button>
-                </div>
-            </div>
-
-            <!-- CHAT PANEL -->
-            <div id="chatPanel" class="chat-panel">
-                <div class="chat-topbar">
-                    <div class="chat-roomid" onclick="crCopyRoom()" title="点击复制房间号">
-                        房间 <span id="chatRoomId">------</span>
-                    </div>
-                    <div class="chat-user-pills" id="chatUsers"></div>
-                    <div class="conn-indicator waiting" id="chatConn"></div>
-                    <button class="leave-btn" onclick="crLeave()" title="离开">✕</button>
-                </div>
-                <div class="chat-messages" id="chatMessages"></div>
-                <div class="chat-inputbar">
-                    <button class="chat-lang-toggle" id="chatLangTag" onclick="crCycleLang()" title="切换语言">中</button>
-                    <textarea class="chat-textarea" id="chatInput" placeholder="输入消息…" rows="1"></textarea>
-                    <button class="chat-send" onclick="crSend()">发送</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="footer">
-            <p data-i18n="footer">微信号：D399HV · <a href="#">鹏哥提供</a> © <span id="footerYear">2026</span></p>
-        </div>
+    <div class="card">
+        <div class="icon">📦</div>
+        <h1>生管桶号管理</h1>
+        <p>正在跳转…</p>
+        <div class="spinner"></div>
     </div>
-
-    <!-- TOAST -->
-    <div class="toast" id="toast"></div>
-
-    <script src="/js/app.js" defer></script>
-
-    <!-- Cloudflare Web Analytics -->
-    <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "8e579499b2954156a1a1533e1cc8737c"}'></script>
-    <!-- End Cloudflare Web Analytics -->
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(reg => console.log('SW registered:', reg.scope))
-                    .catch(err => console.log('SW registration failed:', err));
-            });
-        }
-    </script>
 </body>
 </html>
