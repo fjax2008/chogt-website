@@ -1,4 +1,13 @@
 {
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.9",
+      "maxDuration": 15
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -27,12 +36,6 @@
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "https://barrel-management.onrender.com/api/$1"
     }
   ]
 }
