@@ -1,12 +1,6 @@
 {
-  "functions": {
-    "api/index.py": {
-      "runtime": "python3.9",
-      "maxDuration": 15
-    }
-  },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" }
+    { "source": "/api/(.*)", "destination": "https://barrel-management.onrender.com/api/$1" }
   ],
   "headers": [
     {

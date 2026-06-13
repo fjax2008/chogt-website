@@ -137,22 +137,23 @@ def handler(event, context):
         if not barrel_nos or not location:
             return json_response({"success": False, "msg": "缺少参数"}, 400)
         now = now_str()
-        success_list = []
-        for bn in barrel_nos:
-            bn = bn.strip()
-            if not bn:
-                continue
-            rows = db("SELECT * FROM barrel_inventory WHERE barrel_no=?", [bn])
-            exists = rows and rows[0]["status"] == "in"
-            action = "移动" if exists else "入库"
-            db_batch([
-                ("INSERT OR REPLACE INTO barrel_inventory (barrel_no, location, status, update_time) VALUES (?,?,'in',?)",
-                 [bn, location, now]),
-                ("INSERT INTO barrel_log (barrel_no, action, location, created_at) VALUES (?,?,?,?)",
-                 [bn, action, location, now]),
-            ])
-            success_list.append(bn)
-        return json_response({"success": True, "location": location, "success_count": len(success_list), "success_list": success_list})
+        # 批量查询已有桶号（一趟往返）
+        clean = [bn.strip() for bn in barrel_nos if bn.strip()]
+        if not clean:
+            return json_response({"success": True, "location": location, "success_count": 0, "success_list": []})
+        placeholders = ",".join(["?"] * len(clean))
+        existing = db(f"SELECT barrel_no FROM barrel_inventory WHERE barrel_no IN ({placeholders})", clean)
+        exists_set = {r["barrel_no"] for r in existing}
+        # 批量写入（一趟往返）
+        stmts = []
+        for bn in clean:
+            action = "移动" if bn in exists_set else "入库"
+            stmts.append(("INSERT OR REPLACE INTO barrel_inventory (barrel_no, location, status, update_time) VALUES (?,?,'in',?)",
+                          [bn, location, now]))
+            stmts.append(("INSERT INTO barrel_log (barrel_no, action, location, created_at) VALUES (?,?,?,?)",
+                          [bn, action, location, now]))
+        db_batch(stmts)
+        return json_response({"success": True, "location": location, "success_count": len(clean), "success_list": clean})
 
     # ── DELETE /api/barrel/{barrel_no} ──
     if method == "DELETE" and path.startswith("/api/barrel/"):
