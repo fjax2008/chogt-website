@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://barrel-management.onrender.com/api/$1" }
+    { "source": "/api/(.*)", "destination": "http://47.81.27.203:8080/api/$1" }
   ],
   "headers": [
     {
