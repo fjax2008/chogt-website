@@ -28,5 +28,11 @@
         { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://barrel-management.onrender.com/api/$1"
+    }
   ]
 }

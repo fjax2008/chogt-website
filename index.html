@@ -1,30 +1,507 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生管桶号管理</title>
-    <meta name="theme-color" content="#1677ff">
-    <meta http-equiv="refresh" content="0;url=https://barrel-management.onrender.com">
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;display:flex;align-items:center;justify-content:center;min-height:100dvh}
-        .card{background:#fff;border-radius:16px;padding:40px 32px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.08);max-width:360px;width:90%}
-        .icon{font-size:48px;margin-bottom:16px}
-        h1{font-size:20px;color:#1a1a2e;margin-bottom:8px}
-        p{font-size:14px;color:#8c8c8c;margin-bottom:20px}
-        .spinner{display:inline-block;width:20px;height:20px;border:3px solid #e8e8e8;border-top-color:#1677ff;border-radius:50%;animation:spin .6s linear infinite}
-        @keyframes spin{to{transform:rotate(360deg)}}
-        a{color:#1677ff;text-decoration:none;font-size:14px}
-    </style>
-    <script>window.location.replace('https://barrel-management.onrender.com');</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title data-i18n="title">生管桶号管理</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#333;min-height:100dvh;-webkit-tap-highlight-color:transparent}
+.container{max-width:560px;margin:0 auto;padding:10px}
+
+/* Header */
+.header{text-align:center;padding:12px 0 6px}
+.header h1{font-size:18px;font-weight:700;color:#1a1a2e}
+.lang-switch{position:absolute;top:10px;right:14px;display:flex;gap:4px}
+.lang-btn{background:transparent;border:1px solid #d9d9d9;border-radius:6px;padding:4px 10px;font-size:13px;cursor:pointer;color:#595959}
+.lang-btn.active{background:#1677ff;color:#fff;border-color:#1677ff}
+
+/* Quick search */
+.quick-search{background:#fff;border-radius:10px;padding:8px 12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.quick-row{display:flex;gap:6px;align-items:center}
+.quick-row input{flex:1;padding:8px 12px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:7px;outline:none;text-align:center;background:#fafafa}
+.quick-row input:focus{border-color:#fa8c16;background:#fff}
+.quick-btn{width:40px;height:36px;border:none;border-radius:7px;background:#fa8c16;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.quick-btn:active{background:#d46b08}
+.quick-result{margin-top:6px;font-size:13px;text-align:center;min-height:20px}
+.quick-result .found{color:#1677ff;font-weight:600}
+.quick-result .found .loc{color:#fa8c16}
+.quick-result .not-found{color:#ff4d4f}
+
+/* Scanner */
+.scanner-wrap{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.scanner-input{width:100%;padding:12px 14px;font-size:18px;border:2px solid #e0e0e0;border-radius:8px;outline:none;text-align:center;letter-spacing:1px;background:#fafafa;transition:.15s}
+.scanner-input:focus{border-color:#1677ff;background:#fff}
+
+/* Scanned barrels chips */
+.barrel-chips{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-items:center}
+.barrel-chips .label{font-size:12px;color:#8c8c8c;margin-right:2px}
+.barrel-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#e6f4ff;border:1px solid #91caff;border-radius:14px;font-size:13px;font-weight:600;color:#1677ff;letter-spacing:0.5px}
+.barrel-chip .chip-x{cursor:pointer;font-size:15px;color:#8c8c8c;line-height:1}
+.barrel-chip .chip-x:hover{color:#ff4d4f}
+
+/* Location Grid */
+.loc-wrap{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.loc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:5px;margin-bottom:4px}
+.loc-label{grid-column:1/-1;font-size:13px;font-weight:600;color:#595959;padding:4px 0 2px}
+.loc-btn{padding:9px 4px;font-size:12px;font-weight:600;border:2px solid #e8e8e8;border-radius:7px;background:#fff;color:#333;cursor:pointer;transition:all .12s;text-align:center}
+.loc-btn:active,.loc-btn.selected{background:#e6f4ff;border-color:#1677ff;color:#1677ff}
+.loc-btn.special{background:#f9f0ff;border-color:#d3adf7;color:#722ed1;font-size:11px}
+.loc-btn.special.selected{background:#d3adf7;color:#531dab}
+
+/* Action buttons */
+.action-row{display:flex;gap:8px;margin-top:6px}
+.btn{flex:1;padding:11px;font-size:15px;font-weight:600;border:none;border-radius:8px;cursor:pointer;transition:all .12s}
+.btn:disabled{opacity:.4;pointer-events:none}
+.btn-primary{background:#1677ff;color:#fff}
+.btn-default{background:#f0f0f0;color:#595959}
+.btn:active{transform:scale(.97)}
+
+/* Query section */
+.query-wrap{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.query-bar{display:flex;gap:8px;align-items:center}
+.query-bar .btn-sm{padding:7px 14px;font-size:13px;font-weight:600;border:none;border-radius:7px;cursor:pointer}
+.query-bar .btn-outline{background:#fff;color:#1677ff;border:1.5px solid #1677ff}
+.query-bar .btn-outline:active{background:#e6f4ff}
+.query-bar .btn-lookup{background:#fa8c16;color:#fff;border:none;font-size:14px;padding:8px 16px;box-shadow:0 2px 4px rgba(250,140,22,.3)}
+.query-bar .btn-lookup:active{background:#d46b08}
+.query-bar .btn-ghost{background:#f5f5f5;color:#595959}
+
+/* Table (hidden by default) */
+.table-section{display:none;margin-top:10px}
+.table-section.show{display:block}
+.table-wrap{overflow-x:auto;max-height:360px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:7px 8px;text-align:left;border-bottom:1px solid #f0f0f0}
+th{background:#fafafa;font-weight:600;color:#8c8c8c;position:sticky;top:0;font-size:12px}
+tr.row-a2d{background:#f9f0ff}
+tr.row-a2n{background:#fffbe6}
+.result-count{text-align:center;color:#8c8c8c;font-size:12px;margin-top:6px}
+
+/* Search row (inside query) */
+.search-row{display:flex;gap:8px;margin-bottom:8px}
+.search-row input{flex:1;padding:8px 12px;font-size:14px;border:1.5px solid #e0e0e0;border-radius:7px;outline:none}
+.search-row input:focus{border-color:#1677ff}
+.search-row button{padding:8px 14px;font-size:13px;border:none;border-radius:7px;background:#1677ff;color:#fff;cursor:pointer;font-weight:600}
+
+/* Delete section */
+.del-wrap{background:#fff;border-radius:10px;padding:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.del-wrap .del-title{font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:8px}
+.delete-input{width:100%;padding:10px 12px;font-size:16px;border:2px solid #ffccc7;border-radius:8px;outline:none;text-align:center;letter-spacing:1px}
+.delete-input:focus{border-color:#ff4d4f}
+.delete-info{text-align:center;font-size:14px;margin-top:8px;color:#595959}
+.delete-info .barrel-no{font-weight:700;color:#ff4d4f}
+.btn-danger{background:#ff4d4f;color:#fff;width:100%;margin-top:6px}
+
+/* Footer */
+.footer-notice{text-align:center;font-size:12px;color:#b0b0b0;padding:8px 0 12px;line-height:1.6}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;color:#fff;z-index:999;animation:toastIn .3s ease;pointer-events:none;white-space:nowrap}
+.toast.success{background:#52c41a}
+.toast.error{background:#ff4d4f}
+.toast.info{background:#1677ff}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+.zone-tag{display:inline-block;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;margin-left:4px}
+.zone-tag.special{background:#f0e6ff;color:#722ed1}
+</style>
 </head>
 <body>
-    <div class="card">
-        <div class="icon">📦</div>
-        <h1>生管桶号管理</h1>
-        <p>正在跳转…</p>
-        <div class="spinner"></div>
+
+<div class="lang-switch">
+  <button class="lang-btn active" onclick="setLang('zh')">中</button>
+  <button class="lang-btn" onclick="setLang('vi')">VN</button>
+</div>
+
+<div class="container">
+  <div class="header">
+    <h1 data-i18n="title">生管桶号管理</h1>
+  </div>
+
+  <!-- Quick search -->
+  <div class="quick-search">
+    <div class="quick-row">
+      <input type="text" id="quick-query" data-i18n-placeholder="quick_placeholder"
+        placeholder="🔍 快速查桶号" autocomplete="off" autocorrect="off" autocapitalize="characters">
+      <button class="quick-btn" onclick="doQuickSearch()">🔍</button>
     </div>
+    <div class="quick-result" id="quick-result"></div>
+  </div>
+
+  <!-- Scanner -->
+  <div class="scanner-wrap">
+    <input type="text" class="scanner-input" id="scanner"
+      data-i18n-placeholder="scan_placeholder"
+      placeholder="🔍 扫码或输入桶号，按回车添加"
+      autocomplete="off" autocorrect="off" autocapitalize="characters">
+    <div class="barrel-chips" id="barrel-chips">
+      <span class="label" data-i18n="scanned_label">待录入：</span>
+    </div>
+  </div>
+
+  <!-- Location Grid -->
+  <div class="loc-wrap">
+    <div class="loc-grid" id="loc-grid"></div>
+    <div class="action-row">
+      <button class="btn btn-primary" id="btn-confirm" disabled data-i18n="confirm_save">✅ 确认保存</button>
+      <button class="btn btn-default" id="btn-clear" data-i18n="clear">✕ 清除</button>
+    </div>
+  </div>
+
+  <!-- Query -->
+  <div class="query-wrap">
+    <div class="query-bar">
+      <button class="btn-sm btn-lookup" id="btn-detail" onclick="toggleDetail()" data-i18n="all_inventory">🔎 查桶号</button>
+      <button class="btn-sm btn-ghost" onclick="exportExcel()" data-i18n="export_excel">📥 导出</button>
+    </div>
+    <div class="table-section" id="table-section">
+      <div class="search-row">
+        <input type="text" id="query-input" data-i18n-placeholder="query_placeholder"
+          placeholder="输入桶号或储位筛选">
+        <button onclick="doQuery()" data-i18n="query_btn">搜索</button>
+      </div>
+      <div class="table-wrap">
+        <table id="results-table">
+          <thead><tr>
+            <th data-i18n="th_barrel">桶号</th>
+            <th data-i18n="th_location">当前位置</th>
+            <th data-i18n="th_time">更新时间</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="result-count" id="result-count"></div>
+    </div>
+  </div>
+
+  <!-- Delete -->
+  <div class="del-wrap">
+    <div class="del-title" data-i18n="delete_title">🗑 删除桶号</div>
+    <input type="text" class="delete-input" id="delete-scanner"
+      data-i18n-placeholder="delete_placeholder"
+      placeholder="扫码或输入桶号，回车确认删除"
+      autocomplete="off" autocorrect="off" autocapitalize="characters">
+    <div class="delete-info" id="delete-info" style="display:none">
+      <span data-i18n="delete_confirm_prefix">确认删除</span>
+      <span class="barrel-no" id="delete-barrel-no"></span>
+      <span data-i18n="delete_confirm_suffix">？此操作不可撤销。</span>
+    </div>
+    <button class="btn btn-danger" id="btn-delete-confirm" style="display:none"
+      data-i18n="confirm_delete">⚠️ 确认删除</button>
+  </div>
+
+  <div class="footer-notice" data-i18n="footer_notice">
+    ⚠️ 本网站桶号数据仅供生管部内部查询使用，如有疑问，请联系生管
+  </div>
+</div>
+
+<script>
+// ─── I18N ───────────────────────────────────────────────────
+const I18N = {
+  zh: {
+    title: '生管桶号管理',
+    quick_placeholder: '🔍 快速查桶号，回车查询',
+    scan_placeholder: '🔍 扫码或输入桶号，按回车添加',
+    scanned_label: '待录入：',
+    clear: '✕ 清除',
+    confirm_save: '✅ 确认保存',
+    query_title: '🔍 库存查询', query_placeholder: '输入桶号或储位筛选', query_btn: '搜索',
+    all_inventory: '🔎 查桶号', export_excel: '📥 导出',
+    th_barrel: '桶号', th_location: '当前位置', th_time: '更新时间',
+    delete_title: '🗑 删除桶号', delete_placeholder: '扫码或输入桶号，回车确认删除',
+    delete_confirm_prefix: '确认删除', delete_confirm_suffix: '？此操作不可撤销。', confirm_delete: '⚠️ 确认删除',
+    new_barrel: '请选择储位',
+    a2_storage: '📦 储区 A2 (01~94)', a2_95_label: '📦 纸箱余料', a2_96_label: '🧴 除油旁边', a2_97_label: '🪣 人工分检', a2_99_label: '🤖 自动分检', a2_98_label: '🔩 分检螺帽',
+    saved: '✅ # 个桶号已保存到 #',
+    select_location_first: '请先选择储位',
+    no_barrels: '请先扫码添加桶号',
+    detail_hide: '🔎 收起查询',
+    deleted: '🗑 桶号 # 已删除',
+    not_found: '未找到桶号 #', no_results: '暂无库存记录',
+    export_success: '📥 Excel 已导出', query_count: '共 # 条',
+    confirm_delete_msg: '🗑 已删除桶号 #（原位置：#）',
+    footer_notice: '⚠️ 本网站桶号数据仅供生管部内部查询使用，如有疑问，请联系生管',
+  },
+  vi: {
+    title: 'Quản lý vị trí thùng',
+    quick_placeholder: '🔍 Tra nhanh mã thùng, Enter',
+    scan_placeholder: '🔍 Quét hoặc nhập mã thùng, Enter để thêm',
+    scanned_label: 'Chờ nhập:',
+    clear: '✕ Xóa hết',
+    confirm_save: '✅ Xác nhận lưu',
+    query_title: '🔍 Tra cứu', query_placeholder: 'Nhập mã thùng hoặc vị trí', query_btn: 'Tìm',
+    all_inventory: '🔎 Tra cứu', export_excel: '📥 Xuất',
+    th_barrel: 'Mã thùng', th_location: 'Vị trí', th_time: 'Cập nhật',
+    delete_title: '🗑 Xóa thùng', delete_placeholder: 'Quét hoặc nhập mã thùng, Enter để xóa',
+    delete_confirm_prefix: 'Xác nhận xóa', delete_confirm_suffix: '? Không thể hoàn tác.', confirm_delete: '⚠️ Xác nhận xóa',
+    new_barrel: 'Chọn vị trí',
+    a2_storage: '📦 Kho A2 (01~94)', a2_95_label: '📦 Thùng carton dư', a2_96_label: '🧴 Cạnh khu tẩy dầu', a2_97_label: '🪣 Phân loại thủ công', a2_99_label: '🤖 Phân loại tự động', a2_98_label: '🔩 Phân loại đai ốc',
+    saved: '✅ # mã đã lưu vào #',
+    select_location_first: 'Hãy chọn vị trí trước',
+    no_barrels: 'Hãy quét thêm mã thùng trước',
+    detail_hide: '🔎 Thu gọn',
+    deleted: '🗑 Đã xóa thùng #',
+    not_found: 'Không tìm thấy thùng #', no_results: 'Chưa có dữ liệu',
+    export_success: '📥 Xuất Excel thành công', query_count: 'Tổng # bản ghi',
+    confirm_delete_msg: '🗑 Đã xóa thùng # (vị trí cũ: #)',
+    footer_notice: '⚠️ Dữ liệu thùng chỉ dùng cho bộ phận Quản lý Sản xuất tham khảo nội bộ. Có thắc mắc xin liên hệ bộ phận Quản lý Sản xuất.',
+  }
+};
+
+let lang = localStorage.getItem('barrel-lang') || 'zh';
+function t(key, ...args) {
+  let s = I18N[lang][key] || key;
+  args.forEach((a, i) => { s = s.replace('#', a); });
+  return s;
+}
+function setLang(l) {
+  lang = l; localStorage.setItem('barrel-lang', l);
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.trim()===(l==='zh'?'中':'VN')));
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+}
+setLang(lang);
+
+// ─── Globals ────────────────────────────────────────────────
+const API = '';
+let barrels = [];      // scanned barrel numbers
+let selectedLoc = null;
+
+function showToast(msg, type) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type; el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2000);
+}
+function beep() {
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value=800; o.type='sine'; g.gain.value=0.15;
+    o.start(); o.stop(ctx.currentTime+0.12);
+  } catch(e) {}
+}
+
+// ─── Scanner ────────────────────────────────────────────────
+document.getElementById('scanner').addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const val = this.value.trim().toUpperCase();
+  if (!val) return;
+  beep();
+  // Split by comma/newline/whitespace for multi-barrel paste
+  const parts = val.split(/[\n,，\s]+/).map(s => s.trim()).filter(Boolean);
+  for (const p of parts) {
+    if (!barrels.includes(p)) barrels.push(p);
+  }
+  renderChips();
+  this.value = '';
+});
+
+function renderChips() {
+  const el = document.getElementById('barrel-chips');
+  if (!barrels.length) {
+    el.innerHTML = '<span class="label" data-i18n="scanned_label">' + t('scanned_label') + '</span>';
+    return;
+  }
+  let h = '<span class="label">' + t('scanned_label') + '</span>';
+  for (let i = 0; i < barrels.length; i++) {
+    h += `<span class="barrel-chip">${barrels[i]}<span class="chip-x" onclick="removeBarrel(${i})">✕</span></span>`;
+  }
+  el.innerHTML = h;
+}
+
+function removeBarrel(idx) {
+  barrels.splice(idx, 1);
+  renderChips();
+}
+
+function clearBarrels() {
+  barrels = [];
+  renderChips();
+  selectedLoc = null;
+  document.querySelectorAll('#loc-grid .loc-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('btn-confirm').disabled = true;
+}
+
+document.getElementById('btn-clear').addEventListener('click', clearBarrels);
+
+// ─── Location Grid ──────────────────────────────────────────
+function buildLocGrid() {
+  const el = document.getElementById('loc-grid');
+  let h = '<div class="loc-label">' + t('a2_storage') + '</div>';
+  for (let i = 1; i <= 94; i++) {
+    const loc = 'A2-' + String(i).padStart(2, '0');
+    h += `<button class="loc-btn" data-loc="${loc}" onclick="pickLoc('${loc}', this)">${loc}</button>`;
+  }
+  h += '<div class="loc-label">📦 A2-95 | 🧴 A2-96 | 🪣 A2-97 | 🤖 A2-99 | 🔩 A2-98</div>';
+  h += `<button class="loc-btn special" data-loc="纸箱余料" onclick="pickLoc('纸箱余料', this)">${t('a2_95_label')}</button>`;
+  h += `<button class="loc-btn special" data-loc="除油旁边" onclick="pickLoc('除油旁边', this)">${t('a2_96_label')}</button>`;
+  h += `<button class="loc-btn special" data-loc="人工分检区" onclick="pickLoc('人工分检区', this)">${t('a2_97_label')}</button>`;
+  h += `<button class="loc-btn special" data-loc="自动分检区" onclick="pickLoc('自动分检区', this)">${t('a2_99_label')}</button>`;
+  h += `<button class="loc-btn special" data-loc="自动分检螺帽区" onclick="pickLoc('自动分检螺帽区', this)">${t('a2_98_label')}</button>`;
+  el.innerHTML = h;
+}
+buildLocGrid();
+
+function pickLoc(loc, btn) {
+  document.querySelectorAll('#loc-grid .loc-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedLoc = loc;
+  document.getElementById('btn-confirm').disabled = false;
+}
+
+// ─── Save ───────────────────────────────────────────────────
+async function confirmSave() {
+  if (!barrels.length) { showToast(t('no_barrels'), 'error'); return; }
+  if (!selectedLoc) { showToast(t('select_location_first'), 'error'); return; }
+  try {
+    const resp = await fetch(API + '/api/inbound/batch', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ barrel_nos: barrels, location: selectedLoc })
+    });
+    await resp.json();
+    beep();
+    showToast(t('saved', barrels.length, selectedLoc), 'success');
+    clearBarrels();
+  } catch(e) { showToast(e.message, 'error'); }
+}
+document.getElementById('btn-confirm').addEventListener('click', confirmSave);
+
+// ─── Query ──────────────────────────────────────────────────
+let detailOpen = false;
+async function toggleDetail() {
+  detailOpen = !detailOpen;
+  const ts = document.getElementById('table-section');
+  ts.classList.toggle('show', detailOpen);
+  if (detailOpen) {
+    document.getElementById('btn-detail').textContent = t('detail_hide');
+    await loadDetail();
+  } else {
+    document.getElementById('btn-detail').textContent = t('all_inventory');
+  }
+}
+async function loadDetail() {
+  try {
+    const resp = await fetch(API + '/api/inventory');
+    const data = await resp.json();
+    renderResults(data.items||data||[]);
+  } catch(e) { showToast(e.message, 'error'); }
+}
+document.getElementById('query-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doQuery();
+});
+async function doQuery() {
+  const val = document.getElementById('query-input').value.trim();
+  if (!val) { loadDetail(); return; }
+  try {
+    const resp = await fetch(API + '/api/inventory');
+    const data = await resp.json();
+    const items = data.items || data || [];
+    const q = val.toUpperCase();
+    renderResults(items.filter(d => (d.barrel_no||'').toUpperCase().includes(q) || (d.location||'').includes(val)));
+  } catch(e) { showToast(e.message, 'error'); }
+}
+function renderResults(items) {
+  const tbody = document.querySelector('#results-table tbody');
+  const count = document.getElementById('result-count');
+  if (!items || !items.length) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#8c8c8c;padding:20px">'+t('no_results')+'</td></tr>';
+    count.textContent = '';
+  } else {
+    tbody.innerHTML = items.map(d => {
+      let rc = '', ld = d.location||'';
+      if (ld === '纸箱余料') { rc = 'row-a2n'; ld = '<span class="zone-tag special">📦 '+ld+'</span>'; }
+      else if (ld === '除油旁边') { rc = 'row-a2n'; ld = '<span class="zone-tag special">🧴 '+ld+'</span>'; }
+      else if (ld === '人工分检区') { rc = 'row-a2n'; ld = '<span class="zone-tag special">🪣 '+ld+'</span>'; }
+      else if (ld === '自动分检区') { rc = 'row-a2d'; ld = '<span class="zone-tag special">🤖 '+ld+'</span>'; }
+      else if (ld === '自动分检螺帽区') { rc = 'row-a2n'; ld = '<span class="zone-tag special">🔩 '+ld+'</span>'; }
+      return `<tr class="${rc}"><td style="font-weight:600">${d.barrel_no}</td><td>${ld}</td><td>${d.update_time||d.updated_at||d.time||''}</td></tr>`;
+    }).join('');
+    count.textContent = t('query_count', items.length);
+  }
+}
+async function exportExcel() {
+  try {
+    const resp = await fetch(API + '/api/export');
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'barrel_inventory_'+new Date().toISOString().slice(0,10)+'.xlsx';
+    a.click(); URL.revokeObjectURL(url);
+    showToast(t('export_success'), 'success');
+  } catch(e) { showToast(e.message, 'error'); }
+}
+
+// ─── Delete ─────────────────────────────────────────────────
+let deleteBarrelNo = null;
+document.getElementById('delete-scanner').addEventListener('keydown', async function(e) {
+  if (e.key !== 'Enter') return;
+  const val = this.value.trim().toUpperCase();
+  if (!val) return; beep();
+  try {
+    const resp = await fetch(API + '/api/inventory/' + encodeURIComponent(val));
+    if (resp.status === 404) {
+      showToast(t('not_found', val), 'error');
+    } else {
+      const data = await resp.json();
+      deleteBarrelNo = val;
+      document.getElementById('delete-barrel-no').textContent = val;
+      document.getElementById('delete-info').style.display = 'block';
+      document.getElementById('btn-delete-confirm').style.display = 'block';
+    }
+  } catch(e) { showToast(e.message, 'error'); }
+  this.value = '';
+});
+document.getElementById('btn-delete-confirm').addEventListener('click', async function() {
+  if (!deleteBarrelNo) return;
+  try {
+    const resp = await fetch(API + '/api/barrel/' + encodeURIComponent(deleteBarrelNo), {method:'DELETE'});
+    const data = await resp.json();
+    beep(); showToast(t('confirm_delete_msg', deleteBarrelNo, data.location||'?'), 'success');
+  } catch(e) { showToast(e.message, 'error'); }
+  deleteBarrelNo = null;
+  document.getElementById('delete-scanner').value = '';
+  document.getElementById('delete-info').style.display = 'none';
+  document.getElementById('btn-delete-confirm').style.display = 'none';
+  document.getElementById('delete-scanner').focus();
+});
+
+// ─── Init ───────────────────────────────────────────────────
+document.getElementById('scanner').focus();
+
+// Quick search
+async function doQuickSearch() {
+  const input = document.getElementById('quick-query');
+  const val = input.value.trim().toUpperCase();
+  const el = document.getElementById('quick-result');
+  if (!val) { el.innerHTML = ''; return; }
+  el.innerHTML = '<span style="color:#8c8c8c">' + t('checking') + '</span>';
+  try {
+    const resp = await fetch(API + '/api/inventory/' + encodeURIComponent(val));
+    const data = await resp.json();
+    const items = Array.isArray(data) ? data : [data];
+    if (!items.length) {
+      el.innerHTML = '<span class="not-found">' + t('not_found', val) + '</span>';
+    } else {
+      const d = items[0];
+      el.innerHTML = '<span class="found">' + d.barrel_no + ' → <span class="loc">' + d.location + '</span> · ' + (d.update_time||'').slice(5) + '</span>' + (items.length > 1 ? ' <span style="color:#8c8c8c;font-size:11px">+'+(items.length-1)+'条</span>' : '') + '</span>';
+    }
+  } catch(e) { el.innerHTML = ''; }
+}
+document.getElementById('quick-query').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') { doQuickSearch(); }
+});
+
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('input') && !e.target.closest('button') && !e.target.closest('.lang-btn') && !e.target.closest('.chip-x')) {
+    document.getElementById('scanner').focus();
+  }
+});
+
+// Init: focus scanner but don't steal from quick search on page load
+</script>
 </body>
 </html>
