@@ -1,12 +1,12 @@
 {
-  "name": "鹏哥翻译",
-  "short_name": "鹏哥翻译",
-  "description": "中越智能互译工具",
+  "name": "生管桶号管理",
+  "short_name": "桶号管理",
+  "description": "生管部在制品桶号位置管理系统",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0a0e27",
-  "theme_color": "#0a0e27",
+  "background_color": "#1677ff",
+  "theme_color": "#1677ff",
   "lang": "zh-CN",
   "categories": ["utilities", "productivity"],
   "icons": [
@@ -24,11 +24,6 @@
       "src": "/pwa-512.png",
       "sizes": "512x512",
       "type": "image/png"
-    },
-    {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml"
     }
   ]
 }
